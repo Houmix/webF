@@ -10,12 +10,12 @@
 {% block content %}
 <!-- Indicateur de débogage - à supprimer après vérification -->
 <!-- <div style="background-color: yellow; padding: 5px; margin-bottom: 15px;">
-        Statut d'authentification: {% if request.user.is_authenticated %}
-            CONNECTÉ ({{ request.user.username }})
-        {% else %}
-            NON CONNECTÉ
-        {% endif %}
-    </div> -->
+    Statut d'authentification: {% if request.user.is_authenticated %}
+    CONNECTÉ ({{ request.user.username }})
+    {% else %}
+    NON CONNECTÉ
+    {% endif %}
+</div> -->
 
 {% if request.user.is_authenticated %}
 
@@ -145,43 +145,49 @@
     }
 </script>
 
-
+<!-- Main Content -->
 <div class="hero-content">
-    <h2>Welcome to SmartCity</h2>
+    <h2>Bienvenue à SmartCity</h2>
     <p class="hero-description">
         Explore your city's events, transportation, and points of interest - all in one place.
     </p>
+    <div class="features">
+        <div class="feature">
+            <span class="material-icons-round">newspaper</span>
+            <h3 class="feature-title">Nouvelles</h3>
+            {% for item in news %}
+            <div>
+                <h3>{{ item.title }}</h3>
+                <p><em>{{ item.date }}</em></p>
+                {% if item.photo %}
+                <img src="{{ item.photo.url }}" alt="Image liée à {{ item.title }}"
+                    style="max-width: 100%; height: auto; border-radius: 8px;">
+                {% endif %}
+                <p>{{ item.content|linebreaks }}</p>
+            </div>
+            {% empty %}
+            <p>Aucune actualité pour le moment.</p>
+            {% endfor %}
+        </div>
+
+        <div class="feature">
+            <span class="material-icons-round">question_mark</span>
+            <h3 class="feature-title">FAQ</h3>
+            <div class="search">
+                <div class="search-group">
+                    <input type="text" id="faqSearch" onkeyup="filterFAQ()" class="search-input" placeholder="Rechercher une question..." />
+                </div>
+                {% for item in faq %}
+                <div class="faq-item">
+                    <strong class="faq-question">{{ item.question }}</strong>
+                    <p class="faq-answer">{{ item.answer }}</p>
+                </div>
+                {% empty %}
+                <p>Aucune question disponible.</p>
+                {% endfor %}
+    
+                {% endif %}
+        </div>
+    </div>
 </div>
-
-
-<h1>News</h1>
-{% for item in news %}
-<div>
-    <h3>{{ item.title }}</h3>
-    <p><em>{{ item.date }}</em></p>
-    {% if item.photo %}
-    <img src="{{ item.photo.url }}" alt="Image liée à {{ item.title }}"
-        style="max-width: 100%; height: auto; border-radius: 8px;">
-    {% endif %}
-    <p>{{ item.content|linebreaks }}</p>
-</div>
-{% empty %}
-<p>Aucune actualité pour le moment.</p>
-{% endfor %}
-
-<div>
-    <h1>FAQ</h1>
-    <input type="text" id="faqSearch" onkeyup="filterFAQ()" placeholder="Rechercher une question..." />
-</div>
-
-{% for item in faq %}
-<div class="faq-item">
-    <strong class="faq-question">{{ item.question }}</strong>
-    <p class="faq-answer">{{ item.answer }}</p>
-</div>
-{% empty %}
-<p>Aucune question disponible.</p>
-{% endfor %}
-
-{% endif %}
 {% endblock %}

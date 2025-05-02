@@ -6,8 +6,8 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Contact Us</h2>
-        <p class="auth-subtitle">We'd love to hear from you</p>
+        <h2>Contactez Nous</h2>
+        <p class="auth-subtitle">N’hésitez pas à nous contacter</p>
         
         {% if messages %}
             {% for message in messages %}
@@ -18,7 +18,7 @@
         <form method="POST" class="auth-form">
             {% csrf_token %}
             <div class="form-group">
-                <label>Name</label>
+                <label>Nom</label>
                 <div class="input-group">
                     <span class="material-icons-round">person</span>
                     <input type="text" name="name" required>
@@ -32,7 +32,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Subject</label>
+                <label>Sujet</label>
                 <div class="input-group">
                     <span class="material-icons-round">subject</span>
                     <input type="text" name="subject" required>
@@ -45,7 +45,7 @@
                     <textarea name="message" rows="5" required></textarea>
                 </div>
             </div>
-            <button type="submit" class="auth-button">Send Message</button>
+            <button type="submit" class="auth-button">Envoyer</button>
         </form>
     </div>
 </div>
