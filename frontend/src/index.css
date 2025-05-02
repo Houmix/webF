@@ -1,0 +1,63 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #3da9fc;
+  text-decoration: inherit;
+  transition: color 0.2s;
+}
+a:hover {
+  color: #38b48e;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0ffe9 0%, #b3d4fc 100%);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid #b3d4fc;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #f4fcff;
+  color: #22344a;
+  cursor: pointer;
+  transition: border-color 0.25s, background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px 0 #b3d4fc33;
+}
+button:hover {
+  border-color: #38b48e;
+  background: #e0ffe9;
+  color: #1e4a3b;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Désactive l'ancien thème clair, tout est géré plus haut */

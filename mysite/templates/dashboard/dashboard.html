@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block headerContent %}
+    <title> Accueil - Dashboard </title>
+{% endblock %}
+
+
+{% block content %}
+    <h1>Mon Dashboard</h1>
+
+    <form method="get">
+        <label for="house_id">Choisissez une maison :</label>
+        <select name="house_id" id="house_id" onchange="this.form.submit()">
+            <option value="">-- Sélectionnez une maison --</option>
+            {% for house in houses %}
+                <option value="{{ house.id }}" {% if house.id == selected_house.id %}selected{% endif %}>
+                    {{ house.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    
+    {% if selected_house %}
+        <h2>{{ selected_house.name }}</h2>
+        
+        {% if profile %}
+            {% if profile.access %}
+                <h3>Entités</h3>
+                <ul>
+                    {% for entity in entities %}
+                        <li>{{ entity.type }} - {% if entity.on %}✅{% else %}❌{% endif %}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Flux</h3>
+                <ul>
+                    {% for flux_type, values in flux_summary.items %}
+                        <li>{{ flux_type }} : {{ values|join:", " }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>⛔ Vous n'avez pas accès à cette maison.</p>
+                <form method="post" action="{% url 'request-access' selected_house.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Demander l'accès</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <p>Vous n'avez aucun profil pour cette maison.</p>
+            <form method="post" action="{% url 'RequestAccess' selected_house.id %}">
+                {% csrf_token %}
+                <button type="submit">Demander l'accès</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

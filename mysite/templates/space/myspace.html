@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- Titre de la page-->
+{% block title %} My Space - SmartCity {% endblock %}
+
+{% block content %}
+<h1>Mon Espace</h1>
+<ul>
+    <li><strong>Pseudonyme:</strong> {{ username }}</li>
+    <li><strong>Sexe:</strong> {{ sexe }}</li>
+    <li><strong>Date de naissance:</strong> {{ birth_date }}</li>
+    <li><strong>Type de membre:</strong> {{ role }}</li>
+    {% if photo_url %}
+    <li><img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"></li>
+    {% endif %}
+    <hr>
+    <li><strong>Nom:</strong> {{ last_name }}</li>
+    <li><strong>Prénom:</strong> {{ first_name }}</li>
+    <li><strong>Email:</strong> {{ email }}</li>
+</ul>
+
+<p class="auth-footer">
+    <a href="{% url 'ChangePassword' %}">Change Password</a>
+</p>
+
+{% endblock %} 

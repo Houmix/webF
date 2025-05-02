@@ -1,0 +1,136 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartCity{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="module" src="{% static 'js/script.js' %}"></script>
+</head>
+
+<body>
+    <!-- Gradient Background -->
+    <div id="box" class="gradient-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <button class="menu-toggle desktop-only">
+                    <span class="material-icons-round">menu</span>
+                </button>
+                <h1>SmartCity</h1>
+            </div>
+            <!-- <div class="auth-buttons">
+                <a href="{% url 'Home' %}" class="auth-button">Back to Home</a>
+            </div> -->
+            {% if request.user.is_authenticated%}
+            <div class="auth-buttons">
+                <div class="account-menu">
+                    <button class="account-button">
+                        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                        <span class="material-icons-round">expand_more</span>
+                    </button>
+                    <div class="account-dropdown">
+                        <a href="{% url 'MySpace' %}" class="dropdown-item">
+                            <span class="material-icons-round">person</span>
+                            My Profile
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <span class="material-icons-round">folder</span>
+                            My Projects
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <span class="material-icons-round">settings</span>
+                            Settings
+                        </a>
+                        <a href="{% url 'Logout' %}" class="dropdown-item">
+                            <span class="material-icons-round">logout</span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="{% url 'Login' %}" class="auth-button">Login</a>
+                <a href="{% url 'SignUp' %}" class="auth-button signup">Sign Up</a>
+            </div>
+            {%endif%}
+        </div>
+    </header>
+    <!-- Full Page Menu -->
+    <div class="full-page-menu">
+        <div class="menu-content">
+            <button class="close-menu">
+                <span class="material-icons-round">close</span>
+            </button>
+            <nav class="menu-nav">
+                <ul class="menu-list">
+                    <li><a href="{% url 'Home' %}" class="menu-link">
+                            <span class="material-icons-round">home</span>
+                            <span>Accueil</span>
+                        </a></li>
+                    <li><a href="#" class="menu-link">
+                            <span class="material-icons-round">search</span>
+                            <span>Rechercher</span>
+                        </a></li>
+                    <li><a href="#" class="menu-link">
+                            <span class="material-icons-round">event</span>
+                            <span>Événements</span>
+                        </a></li>
+                    <li><a href="#" class="menu-link">
+                            <span class="material-icons-round">directions_bus</span>
+                            <span>Transport</span>
+                        </a></li>
+                    {% if request.user.is_authenticated%}
+                    <li class="menu-item-with-submenu">
+                        <a href="#" class="menu-link">
+                            <span class="material-icons-round">admin_panel_settings</span>
+                            <span>Admin</span>
+                            <span class="material-icons-round expand-icon">expand_more</span>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link">
+                                    <span class="material-icons-round">dashboard</span>
+                                    <span>Tableau de bord</span>
+                                </a></li>
+                            <li><a href="#" class="submenu-link">
+                                    <span class="material-icons-round">people</span>
+                                    <span>Gérer les utilisateurs</span>
+                                </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle mobile-only">
+        <span class="material-icons-round">menu</span>
+    </button>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 SmartCity. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

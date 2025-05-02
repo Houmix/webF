@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %} Plan - SmartCity {% endblock %}
+
+{% block content %}
+    {% for elem in plan %}
+        <h1>{{ elem.name }}</h1>
+        <h2>{{ elem.price }}</h2>
+    {% endfor %}
+{% endblock %}

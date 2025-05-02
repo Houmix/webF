@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block headerContent %}
+    <title> Accueil - Mon Site </title>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Indicateur de débogage - à supprimer après vérification -->
+    <div style="background-color: yellow; padding: 5px; margin-bottom: 15px;">
+        Statut d'authentification: {% if request.user.is_authenticated %}
+            CONNECTÉ ({{ request.user.username }})
+        {% else %}
+            NON CONNECTÉ
+        {% endif %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+   
+    <!-- Utilisateurs -->
+    <h2>Utilisateurs (hors vous)</h2>
+    <input type="text" placeholder="Rechercher un utilisateur..." onkeyup="filterList(this, 'userList')">
+    <ul id="userList">
+    {% for user in users %}
+        <li>
+        <a href="{% url 'PublicSpace' user.id %}">{{ user.username }}</a>
+        </li>
+    {% empty %}
+        <li>Aucun autre utilisateur trouvé.</li>
+    {% endfor %}
+    </ul>
+
+    <hr>
+
+    <!-- Maisons accessibles -->
+    <h2>Maisons accessibles</h2>
+    <input type="text" placeholder="Rechercher une maison..." onkeyup="filterList(this, 'accessibleList')">
+    <ul id="accessibleList">
+    {% for house in accessible_houses %}
+        <li>{{ house.name }} ({{ house.type }}) - {{ house.address }}</li>
+    {% empty %}
+        <li>Aucune maison accessible.</li>
+    {% endfor %}
+    </ul>
+
+    <!-- Maisons demandées -->
+    <h2>Accès demandé (en attente)</h2>
+    <input type="text" placeholder="Rechercher une maison..." onkeyup="filterList(this, 'requestedList')">
+    <ul id="requestedList">
+    {% for house in requested_houses %}
+        <li>{{ house.name }} ({{ house.type }}) - {{ house.address }} (Accès en attente)</li>
+    {% empty %}
+        <li>Aucune demande d'accès en attente.</li>
+    {% endfor %}
+    </ul>
+
+    <!-- Maisons non demandées -->
+    <h2>Maisons disponibles (non demandées)</h2>
+    <input type="text" placeholder="Rechercher une maison..." onkeyup="filterList(this, 'notRequestedList')">
+    <ul id="notRequestedList">
+    {% for house in not_requested_houses %}
+        <li>
+        {{ house.name }} ({{ house.type }}) - {{ house.address }}
+        <a href="{% url 'RequestAccess' house.id %}">Demander l'accès</a>
+        </li>
+    {% empty %}
+        <li>Toutes les maisons ont été demandées.</li>
+    {% endfor %}
+    </ul>
+
+    <!-- JS pour la recherche -->
+    <script>
+    function filterList(input, listId) {
+    const filter = input.value.toLowerCase();
+    const list = document.getElementById(listId);
+    const items = list.getElementsByTagName('li');
+    for (let i = 0; i < items.length; i++) {
+        const txt = items[i].textContent || items[i].innerText;
+        items[i].style.display = txt.toLowerCase().includes(filter) ? "" : "none";
+    }
+    }
+    </script>
+
+
+    <!-- Dashboard ou autre contenu -->
+    <main class="dashboard">
+        <a href="{% url 'Dashboard' %}"><h1>DASHBOARD</h1></a>
+    </main>
+
+
+    {% else %}
+    <script>
+        function filterFAQ() {
+            const input = document.getElementById('faqSearch').value.toLowerCase();
+            const faqs = document.getElementsByClassName('faq-item');
+            Array.from(faqs).forEach(faq => {
+                const question = faq.querySelector('.faq-question').textContent.toLowerCase();
+                faq.style.display = question.includes(input) ? '' : 'none';
+            });
+        }
+    </script>
+
+
+    <div class="hero-content">
+        <h2>Welcome to SmartCity</h2>
+        <p class="hero-description">
+            Explore your city's events, transportation, and points of interest - all in one place.
+        </p>
+    </div>
+
+
+    <h1>News</h1>
+    {% for item in news %}
+        <div>
+            <h3>{{ item.title }}</h3>
+            <p><em>{{ item.date }}</em></p>
+            {% if item.photo %}
+                <img src="{{ item.photo.url }}" alt="Image liée à {{ item.title }}" style="max-width: 100%; height: auto; border-radius: 8px;">
+            {% endif %}
+            <p>{{ item.content|linebreaks }}</p>
+        </div>
+    {% empty %}
+        <p>Aucune actualité pour le moment.</p>
+    {% endfor %}
+
+    <div>
+        <h1>FAQ</h1>
+        <input type="text" id="faqSearch" onkeyup="filterFAQ()" placeholder="Rechercher une question..." />
+    </div>
+    
+    {% for item in faq %}
+        <div class="faq-item">
+            <strong class="faq-question">{{ item.question }}</strong>
+            <p class="faq-answer">{{ item.answer }}</p>
+        </div>
+    {% empty %}
+        <p>Aucune question disponible.</p>
+    {% endfor %}
+
+    {% endif %}
+{% endblock %}

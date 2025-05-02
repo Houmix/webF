@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+<!-- Titre de la page-->
+{% block title %} Log in - SmartCity {% endblock %}
+
+<!-- Main Content -->
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to your account</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: var(--danger); margin-bottom: 1rem;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Email</label>
+                <div class="input-group">
+                    <span class="material-icons-round">email</span>
+                    <input type="email" name="email" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-group">
+                    <span class="material-icons-round">lock</span>
+                    <input type="password" name="password" required>
+                </div>
+            </div>
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember">
+                    <span>Remember me</span>
+                </label>
+                <a href="{% url 'Forgot_Password' %}" class="forgot-password">Forgot Password?</a>
+            </div>
+            <button type="submit" class="auth-button">Sign In</button>
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account? <a href="{% url 'SignUp' %}">Sign up</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
