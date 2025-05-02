@@ -1,6 +1,7 @@
 // Importing the background modules
 import { CurveGradientBg } from '../jsm/CurveGradientBg.module.js';
 import { AestheticFluidBg } from '../jsm/AestheticFluidBg.module.js';
+import { WavyWavesBg } from '../jsm/WavyWavesBg.module.js';			
 
 // Check if user is admin and apply admin mode
 function checkAdminMode() {
@@ -38,9 +39,9 @@ function checkAdminMode() {
 
 // Initialize gradient background
 try {
-    const colorbg = new CurveGradientBg({
+    const colorbg = new WavyWavesBg({
         dom: "box",  // This should match an element ID in your HTML
-        colors: ["#d486fe", "#a77cfe", "#7cd7fe", "#86abf3", "#a0ddee", "#e2f5db"],
+        colors: ["#5d62f9","#8dadf7","#2e4fa3","#132385","#0C0D62","#000129"],
         loop: true
     });
     

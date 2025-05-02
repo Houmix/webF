@@ -42,13 +42,9 @@
                             <span class="material-icons-round">person</span>
                             My Profile
                         </a>
-                        <a href="#" class="dropdown-item">
-                            <span class="material-icons-round">folder</span>
-                            My Projects
-                        </a>
-                        <a href="#" class="dropdown-item">
-                            <span class="material-icons-round">settings</span>
-                            Settings
+                        <a href="{% url 'Dashboard' %}" class="dropdown-item">
+                            <span class="material-icons-round">dashboard</span>
+                            Dashboard
                         </a>
                         <a href="{% url 'Logout' %}" class="dropdown-item">
                             <span class="material-icons-round">logout</span>
@@ -73,22 +69,18 @@
             </button>
             <nav class="menu-nav">
                 <ul class="menu-list">
-                    <li><a href="{% url 'Home' %}" class="menu-link">
+                    <li>
+                        <a href="{% url 'Home' %}" class="menu-link">
                             <span class="material-icons-round">home</span>
                             <span>Accueil</span>
-                        </a></li>
-                    <li><a href="#" class="menu-link">
-                            <span class="material-icons-round">search</span>
-                            <span>Rechercher</span>
-                        </a></li>
-                    <li><a href="#" class="menu-link">
-                            <span class="material-icons-round">event</span>
-                            <span>Événements</span>
-                        </a></li>
-                    <li><a href="#" class="menu-link">
-                            <span class="material-icons-round">directions_bus</span>
-                            <span>Transport</span>
-                        </a></li>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'Contact' %}" class="menu-link">
+                            <span class="material-icons-round">contact_support</span>
+                            <span>Contact</span>
+                        </a>
+                    </li>
                     {% if request.user.is_authenticated%}
                     <li class="menu-item-with-submenu">
                         <a href="#" class="menu-link">

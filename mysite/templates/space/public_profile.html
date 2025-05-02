@@ -2,19 +2,38 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Public Profile - SmartCity {% endblock %}
+{% block title %} Profils Publics - SmartCity {% endblock %}
 
 {% block content %}
 
-<h1>Profil Public</h1>
-<ul>
-    <li><strong>Pseudonyme:</strong> {{ username }}</li>
-    <li><strong>Sexe:</strong> {{ sexe }}</li>
-    <li><strong>Date de naissance:</strong> {{ birth_date }}</li>
-    <li><strong>Type de membre:</strong> {{ role }}</li>
-    {% if photo_url %}
-    <li><img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"></li>
-    {% endif %}
-</ul>
-
+<div class="hero-content">
+    <h2>Vos profils publics</h2>
+    <p class="hero-description">Bienvenue dans vos profils publics.</p>
+    
+    <div class="profile-section">
+        {% if photo_url %}
+        <div class="profile-item">
+            <strong>Photo de profil :</strong> 
+            <img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"> 
+        </div>
+        {% endif %}
+        <h3>Vos Profils Publics</h3>
+        <div class="profile-item">
+            <strong>Pseudonyme :</strong> 
+            <p>{{ username }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Sexe :</strong> 
+            <p>{{ sexe }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Date de naissance :</strong> 
+            <p>{{ birth_date }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Type de membre :</strong> 
+            <p>{{ role }}</p>
+        </div>
+</div>
+</div>
 {% endblock %} 

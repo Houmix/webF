@@ -2,26 +2,53 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} My Space - SmartCity {% endblock %}
+{% block title %} Mon espace - SmartCity {% endblock %}
 
 {% block content %}
-<h1>Mon Espace</h1>
-<ul>
-    <li><strong>Pseudonyme:</strong> {{ username }}</li>
-    <li><strong>Sexe:</strong> {{ sexe }}</li>
-    <li><strong>Date de naissance:</strong> {{ birth_date }}</li>
-    <li><strong>Type de membre:</strong> {{ role }}</li>
-    {% if photo_url %}
-    <li><img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"></li>
-    {% endif %}
-    <hr>
-    <li><strong>Nom:</strong> {{ last_name }}</li>
-    <li><strong>Prénom:</strong> {{ first_name }}</li>
-    <li><strong>Email:</strong> {{ email }}</li>
-</ul>
-
-<p class="auth-footer">
-    <a href="{% url 'ChangePassword' %}">Change Password</a>
-</p>
-
-{% endblock %} 
+<div class="hero-content">
+    <h2>Mon Espace</h2>
+    <p class="hero-description">Bienvenue dans votre espace personnel.</p>
+    
+    <div class="profile-section">
+        <!-- <h3>Mon Profil</h3> -->
+        {% if photo_url %}
+        <div class="profile-item">
+            <strong>Photo de profil :</strong> 
+            <img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"> 
+        </div>
+        {% endif %}
+        <div class="profile-item">
+            <strong>Nom :</strong> 
+            <p>{{ last_name }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Prénom :</strong> 
+            <p>{{ first_name }} </p> 
+        </div>
+        <div class="profile-item">
+            <strong>Email :</strong> 
+            <p>{{ email }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Pseudonyme :</strong> 
+            <p>{{ username }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Sexe :</strong> 
+            <p>{{ sexe }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Date de naissance :</strong> 
+            <p>{{ birth_date }}</p>
+        </div>
+        <div class="profile-item">
+            <strong>Type de membre :</strong> 
+            <p>{{ role }}</p>
+        </div>
+    </div>
+    <p class="auth-footer">
+        <a href="{% url 'ChangePassword' %}">Modifier mon mot de passe</a>
+    </p>
+</div>
+</div>
+{% endblock %}
