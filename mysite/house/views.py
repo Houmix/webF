@@ -8,9 +8,10 @@ from log.models import Link, FluxStat
 from user.models import User, Profile
 from .serializers import HouseSerializer, EntitySerializer, LinkSerializer, FluxStatSerializer,ProfileSerializer
 from django.shortcuts import get_object_or_404
-
+from rest_framework.permissions import AllowAny
 
 class HouseDetailsAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, user_id, house_id):
         try:
             # Récupérer le profil de l'utilisateur
@@ -35,6 +36,7 @@ class HouseDetailsAPIView(APIView):
 
 
 class PeopleInHouseAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, house_id):
         # Vérifie si la maison existe
         house = get_object_or_404(House, id=house_id)
@@ -63,6 +65,7 @@ class PeopleInHouseAPIView(APIView):
         return Response(occupants, status=status.HTTP_200_OK)
 
 class HousesAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, user_id):
         data = request.data.copy()
         user = get_object_or_404(User, id=user_id)
@@ -91,6 +94,7 @@ class HousesAPIView(APIView):
         serializer = HouseSerializer(houses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 class DeleteHouseAPIView(APIView):
+    permission_classes = [AllowAny]
     def delete(self, request, house_id):
         try:
             house = get_object_or_404(House, id=house_id)
@@ -110,6 +114,7 @@ class DeleteHouseAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class EntityAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, house_id):
         data = request.data.copy()
         # On récupère la maison liée à ce user via Profile
@@ -141,6 +146,7 @@ class EntityAPIView(APIView):
 
 
 class LinkAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = LinkSerializer(data=request.data)
         if serializer.is_valid():
@@ -149,7 +155,7 @@ class LinkAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileAPIView(APIView):
-    
+    permission_classes = [AllowAny]
     def put(self, request, user_id, house_id):
         profile = get_object_or_404(Profile, user=user_id, house=house_id)  # Get the profile or 404
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
@@ -170,7 +176,7 @@ class ProfileAPIView(APIView):
 """
     def get(self, request, user_id):
    
-        #GET: Récupérer la maison d’un utilisateur
+        #GET: Récupérer la maison d'un utilisateur
 
         house = House.objects.filter(profile__user__id=user_id)
         serializer = HouseSerializer(house)
