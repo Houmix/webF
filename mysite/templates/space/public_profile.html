@@ -2,13 +2,13 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Profils Publics - SmartCity {% endblock %}
+{% block title %} Profil Public - SmartCity {% endblock %}
 
 {% block content %}
 
 <div class="hero-content">
-    <h2>Vos profils publics</h2>
-    <p class="hero-description">Bienvenue dans vos profils publics.</p>
+    <h2>Profil public</h2>
+    <p class="hero-description">Vous êtes sur le profil de {{user.username}}.</p>
     
     <div class="profile-section">
         {% if photo_url %}
