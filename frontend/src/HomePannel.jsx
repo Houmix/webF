@@ -35,6 +35,27 @@ function HomePannel() {
 
   const [positionedProjects, setPositionedProjects] = useState([]);
 
+  // Fonction pour rafraîchir les projets (appelée depuis ParticipantsPopup)
+  const refreshProjects = async () => {
+    if (!userId) return;
+    try {
+      const data = await getAllUserData(userId);
+      if (Array.isArray(data)) {
+        setProjects(data);
+        console.log('Projets récupérés:', data);
+      } else if (data && Array.isArray(data.projects)) {
+        setProjects(data.projects);
+        console.log('Projets récupérés:', data.projects);
+      } else {
+        setProjects([]);
+        console.warn('Aucun projet trouvé dans la réponse API', data);
+      }
+    } catch (error) {
+      setProjects([]);
+      console.error('Erreur lors du chargement des projets:', error);
+    }
+  };
+
   // Charger les projets au montage
   useEffect(() => {
     if (!userId) return;
@@ -215,6 +236,8 @@ function HomePannel() {
                 onClose={() =>
                   setParticipantsPopup((p) => ({ ...p, visible: false }))
                 }
+                onParticipantsUpdate={refreshProjects}
+                refreshProjects={refreshProjects}
               />
             </div>
           ) : (
