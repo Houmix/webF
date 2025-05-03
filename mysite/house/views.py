@@ -138,6 +138,13 @@ class ProfileAPIView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, user_id,house_id):
+        profile = Profile.objects.filter(user = user_id, house = house_id)
+        try :
+            profile.delete() 
+            return Response("Suppression effectuée",status=status.HTTP_400_BAD_REQUEST)
+        except : 
+           return Response("Erreur lors de la suppression", status=status.HTTP_400_BAD_REQUEST)
 """
     def get(self, request, user_id):
    
