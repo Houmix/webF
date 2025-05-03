@@ -314,7 +314,7 @@ def generate_entity_pdf(request, entity_id):
             'real_history_graph_data': real_history_graph_data,
         }
 
-        return render(request, 'dashboard/entity_report.html', context)
+        return render_to_pdf('dashboard/entity_report.html', context)
     else:
         return HttpResponse('Accès refusé à cette entité.')
 def generate_global_pdf(request, house_id):
