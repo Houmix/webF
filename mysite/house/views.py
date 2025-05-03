@@ -90,6 +90,24 @@ class HousesAPIView(APIView):
         # Sérialisation des maisons
         serializer = HouseSerializer(houses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+class DeleteHouseAPIView(APIView):
+    def delete(self, request, house_id):
+        try:
+            house = get_object_or_404(House, id=house_id)
+
+            # Supprimer tous les profils liés à cette maison
+            profiles_deleted, _ = Profile.objects.filter(house=house).delete()
+
+            # Supprimer ensuite la maison
+            house.delete()
+
+            return Response(
+                {"detail": f"La maison et ses {profiles_deleted} profils associés ont été supprimés."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class EntityAPIView(APIView):
     def post(self, request, house_id):
@@ -131,20 +149,24 @@ class LinkAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileAPIView(APIView):
-    def put(self, request, user_id,house_id):
-        profile = Profile.objects.filter(user = user_id,house = house_id)
-        serializer = ProfileSerializer(profile, data=request.data,partial=True)
+    
+    def put(self, request, user_id, house_id):
+        profile = get_object_or_404(Profile, user=user_id, house=house_id)  # Get the profile or 404
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def delete(self, request, user_id,house_id):
-        profile = Profile.objects.filter(user = user_id, house = house_id)
-        try :
-            profile.delete() 
-            return Response("Suppression effectuée",status=status.HTTP_400_BAD_REQUEST)
-        except : 
-           return Response("Erreur lors de la suppression", status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, user_id, house_id):
+        profile = get_object_or_404(Profile, user=user_id, house=house_id)  # Get the profile or 404
+        try:
+            profile.delete()
+            return Response({"detail": "Suppression effectuée"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"detail": f"Erreur lors de la suppression: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 """
     def get(self, request, user_id):
    
