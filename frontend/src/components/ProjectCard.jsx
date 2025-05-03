@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useData } from "../DataContext";
 import { Rect, Text, Group, Image, Line, Circle } from "react-konva";
 import useImage from "use-image";
 // Ajout du header et de la barre de côté pour ProjectCard
@@ -39,7 +40,7 @@ const ICONS = {
   internet: "🌐",
 };
 
-function ProjectCard({
+export default function ProjectCard({
   initialData,
   position,
   otherProjects,
@@ -50,6 +51,7 @@ function ProjectCard({
   editProjectId,
   onShowParticipantsPopup,
   forceDrawLineRerender,
+  onPositionChange,
 }) {
   // HEADER ET SIDEBAR (UI MODERNE)
   // Affichage du header (bannière centrée)
@@ -82,17 +84,21 @@ function ProjectCard({
   let electricityOut = 0;
   // Liens sortants de ce projet
   if (Array.isArray(data.links)) {
-    data.links.forEach(link => {
-      if (link.type === 'electricity' && typeof link.value === 'number') {
+    data.links.forEach((link) => {
+      if (link.type === "electricity" && typeof link.value === "number") {
         electricityOut += link.value;
       }
     });
   }
   // Liens entrants depuis les autres projets
-  allProjects.forEach(proj => {
+  allProjects.forEach((proj) => {
     if (Array.isArray(proj.links)) {
-      proj.links.forEach(link => {
-        if (link.type === 'electricity' && link.targetId === data.id && typeof link.value === 'number') {
+      proj.links.forEach((link) => {
+        if (
+          link.type === "electricity" &&
+          link.targetId === data.id &&
+          typeof link.value === "number"
+        ) {
           electricityIn += link.value;
         }
       });
@@ -176,12 +182,19 @@ function ProjectCard({
     setMenu({ ...menu, visible: false });
     if (onEdit) onEdit(data);
   };
-  const handleDelete = () => {
+  
+  const handleDelete = async () => {
     setMenu({ ...menu, visible: false });
     setHovered(false);
     setShowConfirm(false);
     setTooltip({ visible: false, text: "", x: 0, y: 0 });
-    if (onDelete) onDelete(data.id);
+    try {
+      await deleteEntity(data.id);
+      if (onDelete) onDelete(data.id);
+    } catch (error) {
+      alert(error.message);
+      console.error(error);
+    }
   };
 
   // Ajout du drag comme dans BuildingCard
@@ -205,11 +218,15 @@ function ProjectCard({
     };
     setDragPos(newPosition);
     // Notifier le parent en temps réel si besoin
-    if (typeof onPositionChange === 'function') {
-      onPositionChange({ ...data, coords: newPosition, realTimePosition: newPosition });
+    if (typeof onPositionChange === "function") {
+      onPositionChange({
+        ...data,
+        coords: newPosition,
+        realTimePosition: newPosition,
+      });
     }
     // Forcer le rerender de DrawLine
-    if (typeof forceDrawLineRerender === 'function') {
+    if (typeof forceDrawLineRerender === "function") {
       forceDrawLineRerender();
     }
   };
@@ -223,7 +240,7 @@ function ProjectCard({
     };
     setDragPos(newPosition);
     // Notifier le parent du changement final
-    if (typeof onPositionChange === 'function') {
+    if (typeof onPositionChange === "function") {
       onPositionChange({ ...data, coords: newPosition });
     }
   };
@@ -237,8 +254,12 @@ function ProjectCard({
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       opacity={fade}
-      onTap={() => { if (typeof onDoubleClick === 'function') onDoubleClick(data.id); }}
-      onDblClick={() => { if (typeof onDoubleClick === 'function') onDoubleClick(data.id); }}
+      onTap={() => {
+        if (typeof onDoubleClick === "function") onDoubleClick(data.id);
+      }}
+      onDblClick={() => {
+        if (typeof onDoubleClick === "function") onDoubleClick(data.id);
+      }}
       onContextMenu={handleContextMenu}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
@@ -580,9 +601,6 @@ function ProjectCard({
           />
         </Group>
       )}
-     
     </Group>
   );
 }
-
-export default ProjectCard;

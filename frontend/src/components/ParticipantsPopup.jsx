@@ -5,39 +5,41 @@ function ParticipantsPopup({ visible, data, onClose }) {
   const [localPeople, setLocalPeople] = useState([]);
   const [newParticipant, setNewParticipant] = useState("");
 
-  // Initialise la liste locale à l'ouverture de la popup
+  // Initialise la liste locale UNIQUEMENT si data.profiles change (évite la duplication lors des ouvertures successives)
   useEffect(() => {
-    if (visible && data?.peopleInIt) {
-      setLocalPeople(data.peopleInIt.map((p) => ({ ...p })));
+    if (data?.profiles) {
+      setLocalPeople(data.profiles.map((p) => ({ ...p })));
     }
-  }, [visible, data]);
+  }, [data?.profiles]);
 
-  // Ajout d'un participant
+  // Ajout d'un participant sans doublon (nom ou user_id déjà présent)
   const handleAddParticipant = () => {
     if (!newParticipant.trim()) return;
+    if (localPeople.some(p => p.user_name === newParticipant)) return; // Évite les doublons de nom
     setLocalPeople((prev) => [
       ...prev,
       {
-        id: `NEW${Date.now()}`,
-        name: newParticipant,
+        user_id: `NEW${Date.now()}`,
+        user_name: newParticipant,
         role: "Collaborateur",
-        permissions: { view: true, edit: false },
-        isOwner: false,
+        access: false,
+        points: 0,
+        lvl: 1,
       },
     ]);
     setNewParticipant("");
   };
 
   // Suppression d'un participant
-  const handleRemoveParticipant = (id) => {
-    setLocalPeople((prev) => prev.filter((p) => p.id !== id));
+  const handleRemoveParticipant = (userId) => {
+    setLocalPeople((prev) => prev.filter((p) => p.user_id !== userId));
   };
 
   // Changement de rôle
-  const handleChangeRole = (id) => {
+  const handleChangeRole = (userId) => {
     setLocalPeople((prev) =>
       prev.map((p) =>
-        p.id === id
+        p.user_id === userId
           ? {
               ...p,
               role:
@@ -90,7 +92,7 @@ function ParticipantsPopup({ visible, data, onClose }) {
             letterSpacing: 0.5,
           }}
         >
-          Participants du projet: {data?.infos?.name || "Projet"}
+          Participants du projet : {data?.name || "Projet"}
         </span>
         <button
           onClick={onClose}
@@ -131,7 +133,7 @@ function ParticipantsPopup({ visible, data, onClose }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {localPeople.map((person, idx) => (
             <div
-              key={person.id}
+              key={person.user_id + '-' + idx}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -152,7 +154,7 @@ function ParticipantsPopup({ visible, data, onClose }) {
                   flex: 2,
                 }}
               >
-                {person.name}
+                {person.user_name}
               </span>
               <span style={{ color: "#666", fontSize: 15, flex: 2 }}>
                 {person.role}
@@ -169,7 +171,7 @@ function ParticipantsPopup({ visible, data, onClose }) {
                   marginRight: 10,
                   cursor: "pointer",
                 }}
-                onClick={() => handleChangeRole(person.id)}
+                onClick={() => handleChangeRole(person.user_id)}
               >
                 Changer rôle
               </button>
@@ -184,7 +186,7 @@ function ParticipantsPopup({ visible, data, onClose }) {
                   padding: "5px 14px",
                   cursor: "pointer",
                 }}
-                onClick={() => handleRemoveParticipant(person.id)}
+                onClick={() => handleRemoveParticipant(person.user_id)}
               >
                 Supprimer
               </button>

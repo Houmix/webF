@@ -5,192 +5,27 @@ import ParticipantsPopup from "./components/ParticipantsPopup";
 import ProjectForm from "./components/ProjectForm";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./HomePannel.css";
+import { useData } from "./DataContext";
 
 function HomePannel() {
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
-  const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId");
-  console.log(userId);
+  
 
-  const [projects, setProjects] = useState([
-    {
-      id: "E001",
-      image: "",
-      name: "MAISON FAMILIALE",
-      peopleInIt: [
-        {
-          id: "E001-0",
-          name: "Thomas Bernard",
-          role: "Propriétaire",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "E001-1",
-          name: "Julie Bernard",
-          role: "Propriétaire",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "E001-2",
-          name: "Antoine Dubois",
-          role: "Architecte",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "E001-3",
-          name: "Marie Lefèvre",
-          role: "Décoratrice",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-      ],
-    },
-    {
-      id: "E002",
-      image: "",
-      name: "ÉCOLE PRIMAIRE JULES FERRY",
-      peopleInIt: [
-        {
-          id: "E002-0",
-          name: "François Moreau",
-          role: "Directeur",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "E002-1",
-          name: "Céline Petit",
-          role: "Enseignante",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-        {
-          id: "E002-2",
-          name: "Laurent Girard",
-          role: "Responsable technique",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "E002-3",
-          name: "Nathalie Simon",
-          role: "Secrétaire",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-      ],
-    },
-    {
-      id: "E003",
-      image: "",
-      name: "CENTRE COMMERCIAL GRAND PLACE",
-      peopleInIt: [
-        {
-          id: "USR301",
-          name: "Philippe Durand",
-          role: "Directeur général",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "USR302",
-          name: "Sandrine Leroy",
-          role: "Responsable marketing",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "USR303",
-          name: "Marc Lambert",
-          role: "Agent de sécurité",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-        {
-          id: "USR304",
-          name: "Aurélie Fontaine",
-          role: "Gestionnaire locatif",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-      ],
-    },
-    {
-      id: "E004",
-      image: "",
-      name: "BIBLIOTHÈQUE MUNICIPALE",
-      peopleInIt: [
-        {
-          id: "USR401",
-          name: "Hélène Rousseau",
-          role: "Bibliothécaire en chef",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "USR402",
-          name: "Michel Blanc",
-          role: "Responsable section jeunesse",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "USR403",
-          name: "Emilie Roux",
-          role: "Archiviste",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "USR404",
-          name: "David Martin",
-          role: "Assistant bibliothécaire",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-      ],
-    },
-    {
-      id: "E006",
-      image: "",
-      name: "BUREAUX TECH INNOV",
-      peopleInIt: [
-        {
-          id: "USR601",
-          name: "Sophie Martin",
-          role: "PDG",
-          permissions: { view: true, edit: true },
-          isOwner: true,
-        },
-        {
-          id: "USR602",
-          name: "Lucas Dubois",
-          role: "Directeur technique",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "USR603",
-          name: "Camille Perrin",
-          role: "Gestionnaire d'espace",
-          permissions: { view: true, edit: true },
-          isOwner: false,
-        },
-        {
-          id: "USR604",
-          name: "Julien Mercier",
-          role: "Responsable sécurité",
-          permissions: { view: true, edit: false },
-          isOwner: false,
-        },
-      ],
-    },
-  ]);
 
+  const {
+    buildings,
+    loading,
+    error,
+    userId,
+    getAllUserData,
+    api,
+  } = useData();
+
+  // State local pour les projets (et non plus via le contexte)
+  const [projects, setProjects] = useState([]);
+
+  
   const navigate = useNavigate();
 
   const handleDoubleClick = (projectId) => {
@@ -199,6 +34,32 @@ function HomePannel() {
   };
 
   const [positionedProjects, setPositionedProjects] = useState([]);
+
+  // Charger les projets au montage
+  useEffect(() => {
+    if (!userId) return;
+    getAllUserData(userId)
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProjects(data);
+          console.log('Projets récupérés:', data);
+        } else if (data && Array.isArray(data.projects)) {
+          setProjects(data.projects);
+          console.log('Projets récupérés:', data.projects);
+        } else {
+          setProjects([]);
+          console.warn('Aucun projet trouvé dans la réponse API', data);
+        }
+      })
+      .catch(error => {
+        setProjects([]);
+        console.error('Erreur lors du chargement des projets:', error);
+      });
+  }, [userId, getAllUserData, setProjects]);
+
+
+  console.log("Premier projet:", projects[0]);
+
 
   // Définition de la taille des cartes (synchronisé avec ProjectCard.jsx)
   const cardWidth = 150;

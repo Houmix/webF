@@ -42,8 +42,11 @@ INSTALLED_APPS = [
     "home",
     "house",
     "log",
-    'rest_framework',
-    'corsheaders'
+    'rest_framework',  # Notez la virgule ici
+    'corsheaders'      # Et cette application est séparée
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
 ]
 
 REST_FRAMEWORK = {
@@ -57,8 +60,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -66,6 +68,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',  # Doit être en première position
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = "mysite.urls"
@@ -169,7 +173,37 @@ EMAIL_USE_TLS = True
 BASE_URL="http://127.0.0.1:8000"
 
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Mode permissif pour le développement
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
+
+# Configuration CORS pour autoriser les requêtes cross-origin
+# Option 1 : Autoriser toutes les origines (pour le développement)
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Option 2 : Spécifier des origines précises (recommandé pour la production)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173",  # URL de votre frontend React (port par défaut de Vite)
+    "http://127.0.0.1:5173",
+    # Ajoutez d'autres URLs au besoin
 ]
+
+# Configuration optionnelle pour les méthodes HTTP autorisées
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+
+# Si vous utilisez des cookies ou l'authentification par session
+CORS_ALLOW_CREDENTIALS = True
