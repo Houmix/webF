@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useData } from "../DataContext";
 
 function ParticipantsPopup({ visible, data, onClose }) {
   // Gestion de l'état local pour la liste des participants et le champ d'ajout
@@ -30,10 +31,20 @@ function ParticipantsPopup({ visible, data, onClose }) {
     setNewParticipant("");
   };
 
-  // Suppression d'un participant
-  const handleRemoveParticipant = (userId) => {
-    setLocalPeople((prev) => prev.filter((p) => p.user_id !== userId));
+  // Modification du projet : retire le profil du tableau local et envoie le projet mis à jour au backend
+  const { updateProject } = useData();
+  const handleRemoveParticipant = async (userId) => {
+    try {
+      // Crée une nouvelle liste de profils sans le participant à supprimer
+      const newProfiles = localPeople.filter((p) => p.user_id !== userId);
+      // Envoie la modification au backend (le projet courant sans ce profil)
+      await updateProject({ ...data, profiles: newProfiles });
+      setLocalPeople(newProfiles);
+    } catch (error) {
+      alert("Erreur lors de la suppression: " + (error.message || error));
+    }
   };
+
 
   // Changement de rôle
   const handleChangeRole = (userId) => {

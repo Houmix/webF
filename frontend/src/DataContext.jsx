@@ -219,6 +219,16 @@ export const DataProvider = ({ children, requestUrl, type, userId: userIdProp })
     }
   };
 
+  // Met à jour un projet (PATCH ou PUT selon l'API)
+  const updateProject = async (project) => {
+    try {
+      // PATCH si partiel, PUT si tout l'objet. À adapter selon le backend.
+      const response = await axiosClient.patch(`/house/house/${project.id}/`, project);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   // La valeur que vous souhaitez partager
   const value = {
@@ -240,6 +250,7 @@ export const DataProvider = ({ children, requestUrl, type, userId: userIdProp })
     userId, // Expose userId partout dans l'app
     currentId: urlParams.id || sessionStorage.getItem("currentId"), // Exposer l'ID actuel
     api: axiosClient,
+    updateProject,
 
     // Ajouter une méthode utilitaire pour construire des URLs avec l'ID
     buildUrlWithId: (baseUrl) => {
