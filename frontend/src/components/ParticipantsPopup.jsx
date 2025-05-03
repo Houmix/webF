@@ -31,15 +31,12 @@ function ParticipantsPopup({ visible, data, onClose }) {
     setNewParticipant("");
   };
 
-  // Modification du projet : retire le profil du tableau local et envoie le projet mis à jour au backend
-  const { updateProject } = useData();
+  // Suppression d'un profil via DELETE sur /profile/<user_id>/<house_id>/
+  const { api } = useData();
   const handleRemoveParticipant = async (userId) => {
     try {
-      // Crée une nouvelle liste de profils sans le participant à supprimer
-      const newProfiles = localPeople.filter((p) => p.user_id !== userId);
-      // Envoie la modification au backend (le projet courant sans ce profil)
-      await updateProject({ ...data, profiles: newProfiles });
-      setLocalPeople(newProfiles);
+      await api.delete(`house/profile/${userId}/${data.id}/`);
+      setLocalPeople((prev) => prev.filter((p) => p.user_id !== userId));
     } catch (error) {
       alert("Erreur lors de la suppression: " + (error.message || error));
     }
