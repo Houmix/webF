@@ -130,11 +130,11 @@ class EntityAPIView(APIView):
     def post(self, request, id):
         data = request.data.copy()
         # On récupère la maison liée à ce user via Profile
-        profile = Profile.objects.filter(house__id=id).first()
+        profile = Profile.objects.filter(house__id=id,user=request.data.get('user_id'))
         if not profile:
             return Response({'detail': 'Profile not found for this house.'}, status=status.HTTP_404_NOT_FOUND)
-        data['house'] = profile.house.id  # On l'ajoute aux données envoyées
-        serializer = EntitySerializer(data=data)
+        data['house'] = id  # On l'ajoute aux données envoyées
+        serializer = EntitySerializer(data=data,partial=True)
         if serializer.is_valid():
             entity = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -143,18 +143,27 @@ class EntityAPIView(APIView):
         entity = get_object_or_404(Entity, id=id)  # Un seul objet, pas queryset
         previous_state = entity.active  # État avant modificatiactive
         new_state = request.data.get("active")
+        user = request.data.get("user_id")
+        print(new_state) 
         # Vérifie si le champ "on" a changé
         if new_state is not None and str(previous_state).lower() != str(new_state).lower():
+            print("ok") 
             house = entity.house
-            # Tu peux utiliser `get()` ici car chaque user n'a qu'un seul profile par house
-            profile = get_object_or_404(Profile, user=request.user, house=house)
+            # Tu peux utiliser get() ici car chaque user n'a qu'un seul profile par house
+
+            profile = get_object_or_404(Profile, user__id=user, house=house)
             # Exemple de logique : +10 points si on l'active, -10 si on le désactive
+            print("ok") 
             if new_state in [True, 'true', 'True', 1, '1']:
+                
                 profile.points += 10
                 profile.save()
+        print("okwedar")         
         serializer = EntitySerializer(entity, data=request.data, partial=True)
+        print("ok") 
         if serializer.is_valid():
             serializer.save()
+            print("ok") 
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

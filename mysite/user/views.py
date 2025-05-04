@@ -7,6 +7,7 @@ from forms import LoginForm, SignUpForm, ModifyProfil, IncidentForm, IncidentRes
 from user.models import User
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.conf import settings

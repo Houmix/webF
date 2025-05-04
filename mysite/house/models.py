@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 # Create your models here.
 class City(models.Model):
     name = models.CharField(max_length=255)
@@ -55,7 +56,7 @@ class Entity(models.Model):
             old = Entity.objects.get(pk=self.pk)
             if old.active != self.active:
                 # Enregistre dans l'historique
-                EntityHistory.objects.create(entity=self, active=self.active)
+                EntityHistory.objects.create(entity=self, on=self.active)
 
                 if self.active:
                     for flux_stat in self.flux_stats.all():

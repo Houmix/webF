@@ -12,6 +12,8 @@ import {
 } from "react-konva";
 import PopupLinks from "./PopupLinks";
 
+import { useData } from "../DataContext";
+
 function BuildingCard({
   initialData,
   onPositionChange,
@@ -32,6 +34,29 @@ function BuildingCard({
 
   // State pour les coordonnées et les données du bâtiment
   const [data, setData] = useState(initialData);
+
+  // API context
+  const { api } = useData();
+
+  // Function to update an entity (PUT)
+  const handleUpdateEntity = async (entityId, updatedFields) => {
+    const entityData = {
+      active: Boolean(updatedFields.active),
+      user_id: 2
+    };
+
+
+    try {
+      const response = await api.put(`house/entity/${entityId}/`, entityData);
+      // Optionally update local state if needed
+      setData(prev => ({ ...prev, ...updatedFields }));
+      return response;
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de l'entité:", error);
+      throw error;
+    }
+  };
+
 
   // Sécurité pour éviter erreur si fluxStats absent
   const safeFluxStats = data.fluxStats || {
@@ -195,23 +220,25 @@ function BuildingCard({
     alert("Suppression bâtiment (à implémenter)");
   };
 
-  const handleToggleActive = (e) => {
-    // Stopper la propagation pour éviter que le clic soit capturé par d'autres handlers
+  const handleToggleActive = async (e) => {
+    // Stop propagation to avoid event bubbling
     e.cancelBubble = true;
     e.evt.stopPropagation();
 
-    // Mettre à jour localement les données
-    const updatedData = {
+    const updatedFields = {
       ...data,
       active: !data.active,
     };
 
-    // Mettre à jour l'état local
-    setData(updatedData);
-
-    // Informer le composant parent du changement
-    if (onToggleActive) {
-      onToggleActive(updatedData);
+    try {
+      await handleUpdateEntity(data.id, { active: updatedFields.active });
+      // Optionally notify parent
+      if (onToggleActive) {
+        onToggleActive({ ...data, active: updatedFields.active });
+      }
+    } catch (error) {
+      // Optionally display an error to the user
+      console.error('Failed to update entity status', error);
     }
   };
 
@@ -484,7 +511,7 @@ function BuildingCard({
           fontFamily="Arial"
           fill="#999999"
         />
-        <Group x={cardWidth - 40} y={85} onClick={handleToggleActive}>
+        <Group x={cardWidth - 40} y={85} onClick={handleToggleActive} style={{ cursor: 'pointer' }}>
           {/* Fond du switch */}
           <Rect
             width={24}

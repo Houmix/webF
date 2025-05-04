@@ -96,7 +96,7 @@ React.useEffect(() => {
 
             // Construire l'objet entity converti
             return {
-              id: `E${String(entity.id).padStart(3, '0')}`,
+              id: entity.id,
               image:"http://localhost:8000/"+entity.photo || "",
               coords: {
                 x: entity.coordX || 0,

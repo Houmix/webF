@@ -324,7 +324,7 @@ export default function ProjectCard({
             style={{ cursor: "pointer" }}
             onClick={() => {
               if (typeof onShowParticipantsPopup === "function") {
-                onShowParticipantsPopup(data);
+                onShowParticipantsPopup(data,false);
               }
               setMenu((m) => ({ ...m, visible: false }));
             }}
@@ -382,7 +382,7 @@ export default function ProjectCard({
             style={{ cursor: "pointer" }}
             onClick={() => {
               if (typeof onShowParticipantsPopup === "function") {
-                onShowParticipantsPopup(data);
+                onShowParticipantsPopup(data,true);
               }
               setMenu((m) => ({ ...m, visible: false }));
             }}

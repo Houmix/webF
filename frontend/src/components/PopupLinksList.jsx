@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useData } from "../DataContext";
 /**
  * PopupLinksList
  * Affiche la liste des liens associés à un bâtiment (ou autre entité),
@@ -18,6 +18,34 @@ export default function PopupLinksList({
   stageWidth,
   stageHeight,
 }) {
+
+
+const { api } = useData();
+
+
+
+
+const deleteLink = async (linkId) => {
+  try {
+    const response = await api.delete('/house/link/', {
+      data: { id: linkId },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.status === 204) {
+      alert('Lien supprimé !');
+      // Mets à jour l’état local ici
+    } else {
+      alert(response.data?.error || 'Erreur lors de la suppression');
+    }
+  } catch (err) {
+    alert('Erreur réseau');
+  }
+};
+
+
+
   if (!visible) return null;
 
   const colorType = (type) => {
@@ -105,7 +133,7 @@ export default function PopupLinksList({
                 <span>{link.value}</span>
                 <button
                   type="button"
-                  onClick={() => onDeleteLink && onDeleteLink(link.id)}
+                  onClick={() => deleteLink(link.id)}
                   style={{
                     marginLeft: 8,
                     padding: "4px 12px",

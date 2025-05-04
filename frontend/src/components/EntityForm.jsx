@@ -7,7 +7,7 @@ function EntityForm({ houseId, onCreated, onCancel }) {
   const [formData, setFormData] = useState({
     name: "",
     type: "",
-    photo: "", // Note: changed from "image" to "photo" to match API expectations
+    photo: null, // Note: changed from "image" to "photo" to match API expectations
     coordX: 100,  // Note: changed from "coordsX" to "coordX" to match API expectations
     coordY: 100,  // Note: changed from "coordsY" to "coordY" to match API expectations
   });
@@ -31,7 +31,8 @@ function EntityForm({ houseId, onCreated, onCancel }) {
       type: formData.type,
       active: true,
       x: Number(formData.coordX), // Correction: doit être 'x'
-      y: Number(formData.coordY)  // Correction: doit être 'y'
+      y: Number(formData.coordY) , // Correction: doit être 'y'
+      user_id: sessionStorage.getItem('userId')
     };
 
     try {
