@@ -55,6 +55,24 @@ export default function ProjectCard({
   });
   const [isDeleting, setIsDeleting] = useState(false); // Nouvel état pour suivre le processus de suppression
 
+  // Affichage des entities (types)
+  const renderEntities = () => {
+    if (!data.entities || data.entities.length === 0) return null;
+    return (
+      <Group y={cardHeight - 40}>
+        <Text
+          text={"Entités : " + data.entities.map(e => e.type || e.name || "").join(", ")}
+          fontSize={12}
+          fill="#555"
+          x={contentPadding}
+          y={0}
+          width={cardWidth - 2 * contentPadding}
+          align="left"
+        />
+      </Group>
+    );
+  };
+
   // Animation de fade
   React.useEffect(() => {
     let a = 0;
@@ -249,24 +267,13 @@ export default function ProjectCard({
         y={120}
         x={contentPadding}
         text={data.address || "Adresse"}
-        fontSize={9}
-        fontFamily="Arial"
-        fontStyle="bold"
-        fill="#333333"
+        fontSize={12}
+        fill="#333"
         width={cardWidth - 2 * contentPadding}
+        align="center"
       />
-      <Text
-        y={135}
-        x={contentPadding}
-        text={data.city || "Adresse"}
-        fontSize={9}
-        fontFamily="Arial"
-        fontStyle="bold"
-        fill="#333333"
-        width={cardWidth - 2 * contentPadding}
-      />
-      
-      {/* Ajouter un indicateur de suppression en cours si nécessaire */}
+
+      {/* Suppression en cours */}
       {isDeleting && (
         <Group>
           <Rect
@@ -287,7 +294,7 @@ export default function ProjectCard({
           />
         </Group>
       )}
-      
+
       {/* Menu contextuel personnalisé */}
       {menu.visible && !showConfirm && !isDeleting && (
         <Group x={0} y={0} listening={true}>
@@ -311,14 +318,13 @@ export default function ProjectCard({
             height={22}
             fontSize={16}
             fill="#3da9fc"
-
             onTap={handleEdit}
             align="center"
             verticalAlign="middle"
             style={{ cursor: "pointer" }}
             onClick={() => {
               if (typeof onShowParticipantsPopup === "function") {
-                onShowParticipantsPopup(data, false);
+                onShowParticipantsPopup(data);
               }
               setMenu((m) => ({ ...m, visible: false }));
             }}
@@ -376,7 +382,7 @@ export default function ProjectCard({
             style={{ cursor: "pointer" }}
             onClick={() => {
               if (typeof onShowParticipantsPopup === "function") {
-                onShowParticipantsPopup(data, true);
+                onShowParticipantsPopup(data);
               }
               setMenu((m) => ({ ...m, visible: false }));
             }}

@@ -41,6 +41,9 @@ const params = new URLSearchParams(window.location.search);
 const houseId = params.get("id");
 const userId = sessionStorage.getItem("userId");
 
+console.log("houseId", houseId);
+console.log("userId", userId);
+
 React.useEffect(() => {
   if (!houseId || !userId) return;
   
@@ -51,50 +54,42 @@ React.useEffect(() => {
       if (res.data) {
         // Conversion de la réponse API au format attendu
         const house = res.data;
-        
-        // Créer un ID formaté
-        const formattedId = `E${String(house.id).padStart(3, '0')}`;
-        
-        // Préparer les liens à partir des entités
-        const allLinks = [];
-        
-        // Parcourir toutes les entités pour extraire leurs liens
+
+        // Vérifier la présence d'entités
         if (house.entities && Array.isArray(house.entities)) {
-          house.entities.forEach(entity => {
-            if (entity.links && Array.isArray(entity.links)) {
-              entity.links.forEach(link => {
-                // Ajouter le lien au format attendu
-                allLinks.push({
-                  id: `L${String(link.id).padStart(3, '0')}`,
-                  targetId: `E${String(link.target).padStart(3, '0')}`,
-                  type: link.type,
-                  value: parseInt(link.value, 10) || 0
-                });
-              });
-            }
+          // Convertir chaque entity en "building"
+          const convertedEntities = house.entities.map(entity => {
+            // Extraire les links de cette entity
+            const entityLinks = (entity.links || []).map(link => ({
+              id: `L${String(link.id).padStart(3, '0')}`,
+              targetId: `E${String(link.target).padStart(3, '0')}`,
+              type: link.type,
+              value: parseInt(link.value, 10) || 0
+            }));
+
+            // Construire l'objet entity converti
+            return {
+              id: `E${String(entity.id).padStart(3, '0')}`,
+              image:"http://localhost:8000/"+entity.photo || "",
+              coords: {
+                x: entity.coordX || 0,
+                y: entity.coordY || 0
+              },
+              infos: {
+                type: entity.type || "",
+                name: entity.name || "",
+                address: entity.address || ""
+              },
+              active: true,
+              links: entityLinks
+            };
           });
+
+          setBuildings(convertedEntities);
+          console.log('Entities converties:', convertedEntities);
+        } else {
+          setBuildings([]);
         }
-        
-        // Construire l'objet building au format attendu
-        const convertedBuilding = {
-          id: formattedId,
-          image: house.photo || "",
-          coords: { 
-            x: house.coordX || 0, 
-            y: house.coordY || 0 
-          },
-          infos: {
-            type: house.type || "HOUSE",
-            name: house.name || "",
-            address: house.address || ""
-          },
-          active: true,
-          links: allLinks
-        };
-        
-        // Mettre à jour l'état avec le bâtiment converti
-        setBuildings([convertedBuilding]);
-        console.log('Building converti:', convertedBuilding);
       } else {
         console.error('Format de réponse inattendu:', res.data);
         setBuildings([]);
