@@ -95,9 +95,11 @@ class HousesAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 class DeleteHouseAPIView(APIView):
     permission_classes = [AllowAny]
+    print('ok')
     def delete(self, request, house_id):
         try:
             house = get_object_or_404(House, id=house_id)
+
 
             # Supprimer tous les profils liés à cette maison
             profiles_deleted, _ = Profile.objects.filter(house=house).delete()

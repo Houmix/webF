@@ -251,6 +251,7 @@ function HomePannel() {
                 <Layer>
                   {positionedProjects.map((project) => (
                     <ProjectCard
+                    onParticipantsUpdate={refreshProjects}
                       key={project.id}
                       initialData={project}
                       position={project.position}

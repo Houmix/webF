@@ -50,17 +50,7 @@ function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
     setSearchResults(filtered);
   };
 
-  // Ajout d'un participant depuis la recherche
-  const handleAddParticipant = async (user) => {
-    try {
-      await api.post(`house/profile/${user.id}/${data.id}/`, { role: "Collaborateur" });
-      setSearchTerm("");
-      setSearchResults([]);
-      if (onParticipantsUpdate) onParticipantsUpdate();
-    } catch (error) {
-      alert("Erreur lors de l'ajout du participant: " + (error.message || error));
-    }
-  };
+ 
 
 
   // Suppression d'un profil via DELETE sur /profile/<user_id>/<house_id>/
