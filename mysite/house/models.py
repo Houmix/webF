@@ -74,3 +74,30 @@ class EntityHistory(models.Model):
 
     def __str__(self):
         return f"{self.entity.name} - {'ON' if self.on else 'OFF'} - {self.timestamp}"
+    
+class News(models.Model):
+    house = models.ForeignKey(House, on_delete=models.CASCADE, related_name="news")
+    title = models.CharField(max_length=128)
+    date = models.DateField(default=timezone.now)
+    photo = models.ImageField(upload_to="newsHouse/")
+    content = models.CharField(max_length=256)
+    def __str__(self):
+        return f"{self.title} de {self.house.name}"
+
+
+class Incident(models.Model):
+    INCIDENTS_TYPES = [
+        ('technique', 'Technique'),
+        ('budgétaire', 'Budgétaire'),
+        ('internet', 'Internet'),
+        ('pièce','Pièce')
+        # tu peux en ajouter d'autres si besoin
+    ]
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name="incident")
+    description = models.CharField(max_length=256)
+    type =  models.CharField(max_length=255, choices=INCIDENTS_TYPES)
+    date = models.DateField(default=timezone.now)
+    resolved = models.BooleanField(default=False)
+    response = models.CharField(max_length=256, null=True,blank=True)
+    def __str__(self):
+        return f"{self.entity.name} - résolu : {self.resolved} - réponse {self.response}"

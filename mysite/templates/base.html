@@ -34,7 +34,11 @@
             <div class="auth-buttons">
                 <div class="account-menu">
                     <button class="account-button">
-                        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                        {% if request.user.photo %}
+                            <img src="{{ request.user.photo.url }}" alt="Profile" class="profile-pic">
+                        {% else %}
+                            <img src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+                        {% endif %}
                         <span class="material-icons-round">expand_more</span>
                     </button>
                     <div class="account-dropdown">
@@ -45,6 +49,10 @@
                         <a href="{% url 'Dashboard' %}" class="dropdown-item">
                             <span class="material-icons-round">dashboard</span>
                             Dashboard
+                        </a>
+                        <a href="http://localhost/5173/?userid={{request.user.id}}?username={{request.user.username}}" class="dropdown-item">
+                            <span class="material-icons-round">Pannel</span>
+                            Pannel
                         </a>
                         <a href="{% url 'Logout' %}" class="dropdown-item">
                             <span class="material-icons-round">logout</span>

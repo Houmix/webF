@@ -1,5 +1,6 @@
 from django import forms
 from user.models import User
+from house.models import Incident
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import check_password
 from django.utils.crypto import get_random_string
@@ -137,3 +138,24 @@ class PasswordChangeForm(forms.Form):
         if new_password != confirm_password:
             raise forms.ValidationError("Les mots de passe ne correspondent pas.")
         return cleaned_data
+
+
+class IncidentForm(forms.ModelForm):
+    class Meta:
+        model = Incident
+        fields = ['description', 'type']  # ajout du champ 'type'
+        labels = {
+            'description': "Description de l'incident",
+            'type': "Type d'incident",
+        }
+
+class IncidentResponseForm(forms.ModelForm):
+    class Meta:
+        model = Incident
+        fields = ['response']
+        widgets = {
+            'response': forms.Textarea(attrs={'rows': 3}),
+        }
+        labels = {
+            'response': "Réponse à l'incident",
+        }

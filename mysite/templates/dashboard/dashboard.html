@@ -46,16 +46,69 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
+
+                    <h3>Incidents</h3>
+                    <ul>
+                        {% for incident in incidents %}
+                            <li>
+                                <strong>{{ incident.type }}</strong> - {{ incident.date }}
+                                {% if not incident.resolved %}
+                                    <a href="{% url 'AnswerIncident' incident.id %}">Répondre</a>
+                                {% else %}
+                                    <span>Déjà résolu</span>
+                                {% endif %}
+
+                            </li>
+                        {% empty %}
+                            <li>Aucun incident.</li>
+                        {% endfor %}
+                    </ul>
+                    
+
+                    <h3>Demandes de suppression projet</h3>
+                    <ul>
+                        {% for req in supp_asked %}
+                            <li>
+                                {{ req.user.username }} a demandé la suppression de {{ req.house.name }}
+                                <a href="{% url 'RequestSuppression' req.id '1' %}">ok</a>
+                                <a href="{% url 'RequestSuppression' req.id '0' %}">Non</a>
+                            </li>
+                        {% empty %}
+                            <li>Aucune demande de suppression.</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h3>Demandes de suppression objet</h3>
+                    <ul>
+                        {% for req in supp_entity_asked %}
+                            <li>
+                                {{ req.user.username }} a demandé la suppression de {{ req.entity.name }} - {{ req.entity.house.name }}
+                                <a href="{% url 'RequestSuppressionObject' req.id '1' %}">ok</a>
+                                <a href="{% url 'RequestSuppressionObject' req.id '0' %}">Non</a>
+                            </li>
+                        {% empty %}
+                            <li>Aucune demande de suppression.</li>
+                        {% endfor %}
+                    </ul>
+                    
+
                     <!-- Bouton pour générer le rapport global -->
                     <a href="{% url 'generate_global_pdf' selected_house.id %}" class="btn btn-primary">📄 Télécharger le rapport global PDF</a>
 
                     <h3>Entités</h3>
                     <ul>
                         {% for entity in entities %}
-                            <div>
-                                <p>{{ entity.name }}</p>
-                                <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
-                            </div>
+                            <li class="entity-item" style="flex-direction: column;">
+                                <div>
+                                    <p>{{ entity.name }}</p>
+                                    <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
+                                    <a href="{% url 'CreateIncident' entity.id %}">Déclarer un incident</a>
+                                </div>
+                                
+                                <!-- Canvas pour les graphiques de chaque entité -->
+                                <canvas id="chart_{{ forloop.counter }}" width="400" height="150"></canvas>
+                                <canvas id="real_chart_{{ forloop.counter }}" width="400" height="150"></canvas>
+                            </li>
                         {% endfor %}
 
                         

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Répondre à l'incident</h2><br>
+  <p><strong>Entité :</strong> {{ incident.entity.name }}</p><br>
+  <p><strong>Description :</strong> {{ incident.description }}</p><br>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Envoyer la réponse</button>
+  </form>
+{% endblock %}

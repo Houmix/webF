@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout as auth_logout, login as auth_login
-from forms import LoginForm, SignUpForm, ModifyProfil
+from forms import LoginForm, SignUpForm, ModifyProfil, IncidentForm, IncidentResponseForm
 from user.models import User
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_protect
@@ -178,6 +178,83 @@ def request_access(request, house_id):
 
     return redirect('Home') 
 
+
+def suppression(request, request_id, choice):
+    asked_supp = get_object_or_404(RequestSuppression, id=request_id)
+
+    if choice == 1:
+        house = asked_supp.house
+        asked_supp.delete()  # Supprimer la demande pour éviter la contrainte
+        Profile.objects.filter(house=house).delete()
+        house.delete()
+    else:
+        asked_supp.response = True
+        asked_supp.save()
+
+    return redirect("Dashboard")
+
+def suppressionEntity(request, request_id, choice):
+    asked_supp = get_object_or_404(RequestSuppressionEntity, id=request_id)
+
+    if int(choice) == 1:
+        entity = get_object_or_404(Entity, id=asked_supp.entity.id)
+        asked_supp.delete()
+        entity.delete()
+    else :
+        asked_supp.response = True
+        asked_supp.save()
+    
+    return redirect("Dashboard")
+@require_POST
+@login_required
+def respond_incident(request, incident_id):
+    incident = get_object_or_404(Incident, id=incident_id)
+    
+    profile = Profile.objects.filter(user=request.user, house=incident.house).first()
+    #if not profile or not (profile.isOwner or profile.role == "admin"):
+    #    return HttpResponseForbidden("Vous n'avez pas les droits pour répondre à cet incident.")
+
+    response_text = request.POST.get('response')
+    if response_text:
+        incident.response = response_text
+        incident.save()
+    
+    return redirect("Dashboard")
+
+def create_incident(request, entity_id):
+    entity = get_object_or_404(Entity, id=entity_id)
+
+    if request.method == 'POST':
+        form = IncidentForm(request.POST)
+        if form.is_valid():
+            incident = form.save(commit=False)
+            incident.entity = entity
+            incident.save()
+            return redirect('Dashboard')  # Rediriger vers le tableau de bord ou autre
+    else:
+        form = IncidentForm()
+
+    return render(request, 'dashboard/create_incident.html', {
+        'form': form,
+        'entity': entity
+    })
+def respond_to_incident(request, incident_id):
+    incident = get_object_or_404(Incident, id=incident_id)
+
+    if request.method == 'POST':
+        form = IncidentResponseForm(request.POST, instance=incident)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.resolved = True  # Marquer l’incident comme résolu
+            response.save()
+            return redirect('Dashboard')
+    else:
+        form = IncidentResponseForm(instance=incident)
+
+    return render(request, 'dashboard/respond_to_incident.html', {
+        'form': form,
+        'incident': incident
+    })
 
 # Données pour les courbes (extraites de FluxStat)
 from collections import defaultdict
