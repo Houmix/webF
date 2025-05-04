@@ -334,7 +334,7 @@ function BuildingCard({
         />
         {/* Nom du bâtiment */}
         <Text
-          text={data.name}
+          text={data.infos.name}
           fontSize={12}
           fontFamily="Arial"
           fontStyle="bold"
@@ -345,7 +345,7 @@ function BuildingCard({
         {/* Adresse du bâtiment */}
         <Text
           y={16}
-          text={data.address}
+          text={data.infos.address}
           fontSize={8}
           fontFamily="Arial"
           fill="#666666"
