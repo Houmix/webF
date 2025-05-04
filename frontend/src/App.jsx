@@ -17,9 +17,11 @@ import PopupLinks from "./components/PopupLinks";
 import PopupLinksList from "./components/PopupLinksList"; // Import the new component
 import DrawLine from "./components/DrawLine";
 import "./App.css";
+import { useData } from "./DataContext";
 
 // Composant App qui utilise le BuildingCard
 function App() {
+  const { api } = useData();
   // State pour forcer le rerender de DrawLine
   const [dummy, setDummy] = useState(0);
 
@@ -33,6 +35,31 @@ function App() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(null);
   const [touchStartPos, setTouchStartPos] = useState(null);
+
+  const [entities, setEntities] = React.useState([]);
+  const params = new URLSearchParams(window.location.search);
+  const houseId = params.get("id");
+  const userId =sessionStorage.getItem("userId");
+
+    React.useEffect(() => {
+      if (!houseId) return;
+      const fetchEntities = async () => {
+        try {
+          const res = await api.get(`http://localhost:8000/house/houseDetails/${userId}/${houseId}/`);
+          setEntities(res.data);
+          console.log('Entités récupérées:', res.data);
+        } catch (error) {
+          setEntities([]);
+          if (error.response) {
+            console.error('Erreur API:', error.response.status, error.response.data);
+          } else {
+            console.error('Erreur réseau:', error.message);
+          }
+        }
+      };
+      fetchEntities();
+    }, [houseId, userId, api]);
+
 
   // Gestion du drag/pan sur le fond du canevas
   const handleStageMouseDown = (e) => {

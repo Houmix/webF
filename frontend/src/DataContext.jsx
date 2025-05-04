@@ -31,7 +31,15 @@ export const DataProvider = ({ children, requestUrl, type, userId: userIdProp })
   // Fonction pour convertir le format de données de l'API vers le format projects
   const convertBuildingsToProjects = (buildingsData) => {
     if (!Array.isArray(buildingsData)) {
-      console.error("Les données ne sont pas un tableau:", buildingsData);
+      if (typeof buildingsData === 'object' && buildingsData !== null && buildingsData.hasOwnProperty('results')) {
+        // Cas d'une pagination Django REST
+        return convertBuildingsToProjects(buildingsData.results);
+      }
+      // Ajoute un log détaillé pour le debug
+      console.error("[convertBuildingsToProjects] Les données ne sont pas un tableau:", buildingsData);
+      if (typeof buildingsData === 'string' && buildingsData.startsWith('<!DOCTYPE html>')) {
+        console.error("[convertBuildingsToProjects] ERREUR: L'API retourne du HTML (probablement une erreur 404, 500 ou une page de login). Vérifiez l'URL et l'authentification.");
+      }
       return [];
     }
 
@@ -201,13 +209,23 @@ export const DataProvider = ({ children, requestUrl, type, userId: userIdProp })
   const getAllUserData = async (userId) => {
     try {
       const response = await axiosClient.get(`/house/house/${userId}`);
-      console.log("getAllUserData");
-      console.log(response.data);
+      if (!Array.isArray(response.data)) {
+        console.error('[getAllUserData] Réponse inattendue, data:', response.data);
+        if (typeof response.data === 'string' && response.data.startsWith('<!DOCTYPE html>')) {
+          console.error("[getAllUserData] ERREUR: L'API retourne du HTML (probablement une erreur 404, 500 ou une page de login). Vérifiez l'URL et l'authentification.");
+        }
+      }
       return response.data;
     } catch (error) {
+      if (error.response) {
+        console.error('[getAllUserData] Erreur API:', error.response.status, error.response.data);
+      } else {
+        console.error('[getAllUserData] Erreur réseau:', error.message);
+      }
       throw error;
     }
   };
+
 
   // Fonction pour obtenir la liste des personnes liées à une maison
   const getPeopleInHouse = async (houseId) => {

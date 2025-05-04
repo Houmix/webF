@@ -11,8 +11,6 @@ function HomePannel() {
   const containerRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   
-
-
   const {
     buildings,
     loading,
@@ -30,7 +28,7 @@ function HomePannel() {
 
   const handleDoubleClick = (projectId) => {
     console.log("Double-clic sur le projet:", projectId);
-    navigate("/app");
+    navigate("/app/?id="+projectId);
   };
 
   const [positionedProjects, setPositionedProjects] = useState([]);
@@ -79,7 +77,6 @@ function HomePannel() {
   }, [userId, getAllUserData, setProjects]);
 
 
-  console.log("Premier projet:", projects[0]);
 
 
   // Définition de la taille des cartes (synchronisé avec ProjectCard.jsx)

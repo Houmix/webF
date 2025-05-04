@@ -194,7 +194,7 @@ html, body, #root {
     padding: 1em !important;
   }
 }
-  }
+  
   .user-btn, .user-btn-main, .user-btn-success, .user-btn-cancel {
     font-size: 0.98em;
     padding: 0.8em 0;
@@ -208,7 +208,7 @@ html, body, #root {
   input[type="number"] {
     font-size: 0.95em;
   }
-}
+
 
 
 
