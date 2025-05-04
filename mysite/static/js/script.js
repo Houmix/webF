@@ -40,7 +40,7 @@ function checkAdminMode() {
 // Initialize gradient background
 try {
     const colorbg = new WavyWavesBg({
-        dom: "box",  // This should match an element ID in your HTML
+        dom: "box",
         colors: ["#5d62f9","#8dadf7","#2e4fa3","#132385","#0C0D62","#000129"],
         loop: true
     });

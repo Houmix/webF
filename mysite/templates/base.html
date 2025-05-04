@@ -40,23 +40,23 @@
                     <div class="account-dropdown">
                         <a href="{% url 'MySpace' %}" class="dropdown-item">
                             <span class="material-icons-round">person</span>
-                            My Profile
+                            Mon profil
                         </a>
                         <a href="{% url 'Dashboard' %}" class="dropdown-item">
                             <span class="material-icons-round">dashboard</span>
-                            Dashboard
+                            Tableau de bord
                         </a>
                         <a href="{% url 'Logout' %}" class="dropdown-item">
                             <span class="material-icons-round">logout</span>
-                            Logout
+                            Déconnexion
                         </a>
                     </div>
                 </div>
             </div>
             {% else %}
             <div class="auth-buttons">
-                <a href="{% url 'Login' %}" class="auth-button">Login</a>
-                <a href="{% url 'SignUp' %}" class="auth-button signup">Sign Up</a>
+                <a href="{% url 'Login' %}" class="auth-button">Connexion</a>
+                <a href="{% url 'SignUp' %}" class="auth-button signup">Créer un compte</a>
             </div>
             {%endif%}
         </div>
@@ -81,27 +81,6 @@
                             <span>Contact</span>
                         </a>
                     </li>
-                    {% if request.user.is_authenticated%}
-                    <li class="menu-item-with-submenu">
-                        <a href="#" class="menu-link">
-                            <span class="material-icons-round">admin_panel_settings</span>
-                            <span>Admin</span>
-                            <span class="material-icons-round expand-icon">expand_more</span>
-                        </a>
-                        <ul class="submenu">
-                            <li><a href="#" class="submenu-link">
-                                    <span class="material-icons-round">dashboard</span>
-                                    <span>Tableau de bord</span>
-                                </a></li>
-                            <li><a href="#" class="submenu-link">
-                                    <span class="material-icons-round">people</span>
-                                    <span>Gérer les utilisateurs</span>
-                                </a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-
-                    {% endif %}
                 </ul>
             </nav>
         </div>
