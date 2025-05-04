@@ -105,9 +105,11 @@ class HousesAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 class DeleteHouseAPIView(APIView):
     permission_classes = [AllowAny]
+    print('ok')
     def delete(self, request, house_id):
         try:
             house = get_object_or_404(House, id=house_id)
+
 
             # Supprimer tous les profils liés à cette maison
             profiles_deleted, _ = Profile.objects.filter(house=house).delete()
@@ -194,7 +196,7 @@ class ProfileAPIView(APIView):
 
     def put(self, request, user_id):
        
-        #PUT: Mettre à jour la maison d’un utilisateur
+        #PUT: Mettre à jour la maison d'un utilisateur
      
         house = House.objects.filter(profile__user__id=user_id)
         serializer = HouseSerializer(house, data=request.data, partial=True)
@@ -205,7 +207,7 @@ class ProfileAPIView(APIView):
 
     def delete(self, request, user_id):
       
-        #DELETE: Supprimer la maison d’un utilisateur
+        #DELETE: Supprimer la maison d'un utilisateur
     
         house = House.objects.filter(profile__user__id=user_id)
         house.delete()
@@ -237,7 +239,7 @@ class EntityDetailAPIView(APIView):
 
     def put(self, request, user_id):
         
-        #PUT: Modifier une entité d’un utilisateur
+        #PUT: Modifier une entité d'un utilisateur
         
         entity = get_object_or_404(Entity, house__profile__user__id=user_id)
 
@@ -249,7 +251,7 @@ class EntityDetailAPIView(APIView):
 
     def delete(self, request, user_id):
      
-        #DELETE: Supprimer une entité d’un utilisateur
+        #DELETE: Supprimer une entité d'un utilisateur
         
         entity = get_object_or_404(Entity, house__profile__user__id=user_id)
 
