@@ -4,7 +4,7 @@ from .views import HouseDetailsAPIView, PeopleInHouseAPIView, HousesAPIView, Ent
 urlpatterns = [
     
     path('house/<int:user_id>/', HousesAPIView.as_view(), name='house-get_create'), #Toutes les maisons d'un utilisateurs  Donne maison, entité et les liens detoutes les maisons d'un utilisateur
-    path('deleteHouse/<int:house_id>/', HousesAPIView.as_view(), name='house-delete'), #Suppriemr le maison avec l'id en parametre
+    path('deleteHouse/<int:house_id>/', DeleteHouseAPIView.as_view(), name='house-delete'), #Suppriemr le maison avec l'id en parametre
     path('houseDetails/<int:user_id>/<int:house_id>/', HouseDetailsAPIView.as_view(), name='house-details'),#Le details d'une maison cad entité et liens
 
 
