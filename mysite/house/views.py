@@ -200,6 +200,20 @@ class LinkAPIView(APIView):
             link = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self,request):
+        try:
+            link = request.data.get["id"]
+            
+            link = get_object_or_404(Link, id=link)
+            link.delete()
+            return Response(
+                {"detail": "Le lien a été supprimé."},
+                status=status.HTTP_204_NO_CONTENT
+                )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+
 
 class ProfileAPIView(APIView):
     permission_classes = [AllowAny]
