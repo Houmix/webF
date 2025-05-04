@@ -3,9 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import House, Entity 
+from .models import House, Entity
 from log.models import Link, FluxStat
-from user.models import User, Profile
+from user.models import User, Profile, RequestSuppression,RequestSuppressionEntity
 from .serializers import HouseSerializer, EntitySerializer, LinkSerializer, FluxStatSerializer,ProfileSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -112,23 +112,28 @@ class HousesAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 class DeleteHouseAPIView(APIView):
     permission_classes = [AllowAny]
-    print('ok')
-    def delete(self, request, house_id):
+    def delete(self, request, house_id, user_id):
         try:
             house = get_object_or_404(House, id=house_id)
+            profile = get_object_or_404(Profile,house=house,user=user_id)
+            if profile.isOwner == 1 :
+                # Supprimer tous les profils liés à cette maison
+                profiles_deleted, _ = Profile.objects.filter(house=house).delete()
 
-
-            # Supprimer tous les profils liés à cette maison
-            profiles_deleted, _ = Profile.objects.filter(house=house).delete()
-
-            # Supprimer ensuite la maison
-            house.delete()
-
-            return Response(
+                # Supprimer ensuite la maison
+                house.delete()
+                return Response(
                 {"detail": f"La maison et ses {profiles_deleted} profils associés ont été supprimés."},
                 status=status.HTTP_204_NO_CONTENT
-            )
+                )
 
+            else :
+                suppression = RequestSuppression.objects.create(house = house, user = user_id)
+                return Response(
+                {"detail": "Une demande de suppression à été effectuée"},
+                status=status.HTTP_204_NO_CONTENT
+                )
+            
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -162,6 +167,29 @@ class EntityAPIView(APIView):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, entity_id):
+        try:
+            user = request.data.get("user")
+            profile = get_object_or_404(Profile,house=entity_id.house.id,user=user)
+            entity = get_object_or_404(Entity, id=entity_id)
+            if profile.isOwner == 1 :
+                
+                # Supprimer ensuite l'objet
+                entity.delete()
+                return Response(
+                {"detail": "L'objet a été supprimé."},
+                status=status.HTTP_204_NO_CONTENT
+                )
+
+            else :
+                incident = RequestSuppressionEntity.objects.create(entity = entity_id, user=user)
+                return Response(
+                {"detail": "Une demande de suppression à été effectuée"},
+                status=status.HTTP_204_NO_CONTENT
+                )
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LinkAPIView(APIView):

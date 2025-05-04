@@ -29,7 +29,24 @@
     
             {% if profile %}
                 {% if profile.access %}
-                    
+
+                    <h2>Annonces de la maison {{ selected_house.name }}</h2>
+                    {% if news %}
+                        <ul>
+                            {% for item in news %}
+                                <li>
+                                    <h4>{{ item.title }}</h4>
+                                    <p>{{ item.date }}</p>
+                                    {% if item.photo %}
+                                        <img src="{{ item.photo.url }}" alt="Photo de l'annonce" style="max-width: 200px;">
+                                    {% endif %}
+                                    <p>{{ item.content }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Aucune annonce pour cette maison.</p>
+                    {% endif %}                    
                     {% if profile.isOwner or profile.role == "admin" %}
                         <h3>Demandes en attente :</h3>
                         <ul>
@@ -46,33 +63,91 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
+
+                    <h3>Incidents</h3>
+                    <ul>
+                        {% for incident in incidents %}
+                            <li>
+                                <strong>{{ incident.description }}</strong> - {{ incident.date }}
+                                {% if incident.response %}
+                                    <p><em>Réponse : {{ incident.response }}</em></p>
+                                {% elif profile.isOwner or profile.role == "admin" %}
+                                    <form method="POST" action="{% url 'RespondIncident' incident.id %}">
+                                        {% csrf_token %}
+                                        <textarea name="response" rows="2" placeholder="Votre réponse..."></textarea>
+                                        <button type="submit">Répondre</button>
+                                    </form>
+                                {% else %}
+                                    <p><em>En attente de réponse...</em></p>
+                                {% endif %}
+                            </li>
+                        {% empty %}
+                            <li>Aucun incident.</li>
+                        {% endfor %}
+                    </ul>
+                    
+
+                    <h3>Demandes de suppression projet</h3>
+                    <ul>
+                        {% for req in supp_asked %}
+                            <li>
+                                {{ req.user.username }} a demandé la suppression de {{ req.house.name }}
+                                <a href="{% url 'RequestSuppression' req.id '1' %}">ok</a>
+                                <a href="{% url 'RequestSuppression' req.id '0' %}">Non</a>
+                            </li>
+                        {% empty %}
+                            <li>Aucune demande de suppression.</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h3>Demandes de suppression objet</h3>
+                    <ul>
+                        {% for req in supp_entity_asked %}
+                            <li>
+                                {{ req.user.username }} a demandé la suppression de {{ req.entity.name }} - {{ req.entity.house.name }}
+                                <a href="{% url 'RequestSuppressionObject' req.id '1' %}">ok</a>
+                                <a href="{% url 'RequestSuppressionObject' req.id '0' %}">Non</a>
+                            </li>
+                        {% empty %}
+                            <li>Aucune demande de suppression.</li>
+                        {% endfor %}
+                    </ul>
+                    
+
                     <!-- Bouton pour générer le rapport global -->
                     <a href="{% url 'generate_global_pdf' selected_house.id %}" class="btn btn-primary">📄 Télécharger le rapport global PDF</a>
 
+                    <!-- Inclure Chart.js -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
                     <h3>Entités</h3>
-                    <ul>
+
+                    <!-- Barre de recherche -->
+                    <div class="search-group">
+                        <input type="text" id="entitySearch" placeholder="Rechercher une entité..." class="search-input" onkeyup="filterEntities()">
+                    </div>
+
+                    <ul id="entityList">
                         {% for entity in entities %}
-                            <div>
-                                <p>{{ entity.name }}</p>
-                                <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
-                            </div>
+                            <li class="entity-item">
+                                <div>
+                                    <p>{{ entity.name }}</p>
+                                    <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
+                                </div>
+                                
+                                <!-- Canvas pour les graphiques de chaque entité -->
+                                <canvas id="chart_{{ forloop.counter }}" width="400" height="150"></canvas>
+                                <canvas id="real_chart_{{ forloop.counter }}" width="400" height="150"></canvas>
+                            </li>
                         {% endfor %}
-
-                        
-
                     </ul>
-    
+
                     <h3>Graphiques de consommation</h3>
-    
-                    <!-- Global -->
+
+                    <!-- Graphique global -->
                     <canvas id="globalChart" width="600" height="300"></canvas>
-    
-                    <!-- Par entité -->
-                    {% for entity, records in flux_history.items %}
-                        <h4>{{ entity }}</h4>
-                        <canvas id="chart_{{ forloop.counter }}" width="600" height="300"></canvas>
-                    {% endfor %}
-    
+
+                    <!-- Scripts pour les graphiques -->
                     <script>
                     document.addEventListener("DOMContentLoaded", function () {
                         // Graphe global
@@ -88,51 +163,55 @@
                                 }]
                             }
                         });
-    
+
                         // Graphes par entité
                         {% for entity, data in flux_history_graph_data.items %}
-                        const ctx{{ forloop.counter }} = document.getElementById("chart_{{ forloop.counter }}").getContext("2d");
-                        new Chart(ctx{{ forloop.counter }}, {
-                            type: 'bar',
-                            data: {
-                                labels: {{ data.labels|safe }},
-                                datasets: [{
-                                    label: "Consommation - {{ entity }}",
-                                    data: {{ data.values|safe }},
-                                    backgroundColor: "rgba(75, 192, 192, 0.5)"
-                                }]
-                            }
-                        });
+                            const ctx{{ forloop.counter }} = document.getElementById("chart_{{ forloop.counter }}").getContext("2d");
+                            new Chart(ctx{{ forloop.counter }}, {
+                                type: 'bar',
+                                data: {
+                                    labels: {{ data.labels|safe }},
+                                    datasets: [{
+                                        label: "Consommation - {{ entity }}",
+                                        data: {{ data.values|safe }},
+                                        backgroundColor: "rgba(75, 192, 192, 0.5)"
+                                    }]
+                                }
+                            });
                         {% endfor %}
-                    });
-                    </script>
-                    <h3>Historique d'utilisation réelle</h3>
 
-                    {% for entity, data in real_history_graph_data.items %}
-                        <h4>{{ entity }}</h4>
-                        <canvas id="real_chart_{{ forloop.counter }}" width="600" height="300"></canvas>
-                    {% endfor %}
-                    
-                    <script>
-                    document.addEventListener("DOMContentLoaded", function () {
                         // Historique réel par entité
                         {% for entity, data in real_history_graph_data.items %}
-                        const realCtx{{ forloop.counter }} = document.getElementById("real_chart_{{ forloop.counter }}").getContext("2d");
-                        new Chart(realCtx{{ forloop.counter }}, {
-                            type: 'line',
-                            data: {
-                                labels: {{ data.labels|safe }},
-                                datasets: [{
-                                    label: "Historique - {{ entity }}",
-                                    data: {{ data.values|safe }},
-                                    borderColor: "rgba(255, 99, 132, 1)",
-                                    fill: false
-                                }]
-                            }
-                        });
+                            const realCtx{{ forloop.counter }} = document.getElementById("real_chart_{{ forloop.counter }}").getContext("2d");
+                            new Chart(realCtx{{ forloop.counter }}, {
+                                type: 'line',
+                                data: {
+                                    labels: {{ data.labels|safe }},
+                                    datasets: [{
+                                        label: "Historique - {{ entity }}",
+                                        data: {{ data.values|safe }},
+                                        borderColor: "rgba(255, 99, 132, 1)",
+                                        fill: false
+                                    }]
+                                }
+                            });
                         {% endfor %}
                     });
                     </script>
+
+                    <script>
+                    // Fonction de recherche d'entités
+                    function filterEntities() {
+                        const input = document.getElementById("entitySearch").value.toLowerCase();
+                        const entities = document.querySelectorAll("#entityList .entity-item");
+
+                        entities.forEach(item => {
+                            const text = item.textContent.toLowerCase();
+                            item.style.display = text.includes(input) ? "" : "none";
+                        });
+                    }
+                    </script>
+
     
                 {% else %}
                     <p>⛔ Vous n'avez pas accès à cette maison.</p>

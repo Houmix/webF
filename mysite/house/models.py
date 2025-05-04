@@ -1,32 +1,15 @@
 from django.db import models
 from django.utils import timezone
-# Create your models here.
-class City(models.Model):
-    name = models.CharField(max_length=255)
-    coordX = models.FloatField()
-    coordY = models.FloatField()
-    def __str__(self):
-        return self.name
 
-    
 class House(models.Model):
     type = models.CharField(
-        max_length=20,
-        choices=[
-            ('Maison','Maison'),
-            ('Entreprise', 'Entreprise'),
-            ('Ecole', 'Ecole'),
-            ('Mairie', 'Mairie'),
-            ('Gare','Gare')
-        ],
-        default='Maison'
+        max_length=128
     )
     name = models.CharField(max_length=128)
     photo = models.ImageField(upload_to="house/")
     address = models.CharField(max_length=255)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="houses")
-    coordX = models.FloatField()
-    coordY = models.FloatField()
+    coordX = models.FloatField(default=0)
+    coordY = models.FloatField(default=0)
     def __str__(self):
         return self.name
     
@@ -80,5 +63,15 @@ class News(models.Model):
     house = models.ForeignKey(House, on_delete=models.CASCADE, related_name="news")
     title = models.CharField(max_length=128)
     date = models.DateField(default=timezone.now)
-    photo = models.ImageField(upload_to="news/")
+    photo = models.ImageField(upload_to="newsHouse/")
     content = models.CharField(max_length=256)
+    def __str__(self):
+        return f"{self.title} de {self.house.name}"
+
+
+class Incident(models.Model):
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name="incident")
+    description = models.CharField(max_length=256)
+    resolved = models.BooleanField(default=False)
+    response = models.CharField(max_length=256, null=True,blank=True)
+

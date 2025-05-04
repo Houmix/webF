@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser
-from house.models import House
+from house.models import House, Entity
 class User(AbstractUser):
     photo = models.ImageField(upload_to='profile_photo/', blank=True, null=True)
     first_name = models.CharField(max_length=150, blank=True)
@@ -57,3 +57,17 @@ class Profile(models.Model):
             self.role = 'complexe'
         else:
             self.role = 'admin'
+
+
+class RequestSuppression(models.Model):
+    house = models.ForeignKey(House,on_delete=models.CASCADE, related_name="house_suppression")
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="user")
+    response = models.BooleanField(default=False)
+    def __str__(self):
+        return f"{self.user.username} - {self.house.name}"
+class RequestSuppressionEntity(models.Model):
+    entity = models.ForeignKey(Entity,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    response = models.BooleanField(default=False)
+    def __str__(self):
+        return f"{self.user.username} - {self.entity.name} -{self.entity.house.name}"

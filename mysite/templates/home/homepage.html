@@ -101,20 +101,10 @@
                 </ul>
             </div>
         </div>
+
     </div>
 
-    <!-- JS pour la recherche -->
-    <script>
-        function filterList(input, listId) {
-            const filter = input.value.toLowerCase();
-            const list = document.getElementById(listId);
-            const items = list.getElementsByTagName('li');
-            for (let i = 0; i < items.length; i++) {
-                const txt = items[i].textContent || items[i].innerText;
-                items[i].style.display = txt.toLowerCase().includes(filter) ? "" : "none";
-            }
-        }
-    </script>
+    
 
     <!-- Dashboard ou autre contenu -->
     <!-- <main class="dashboard">
@@ -178,9 +168,44 @@
                 {% empty %}
                 <p>Aucune question disponible.</p>
                 {% endfor %}
+            
     
-                {% endif %}
         </div>
+        <!-- All Houses -->
+            <div class="search">
+                <div class="search-header">
+                    <h3>Maisons accessibles</h3>
+                </div>
+                <div class="search-group">
+                    <input type="text" placeholder="Rechercher une infrastructure..." class="search-input"
+                        onkeyup="filterList(this, 'houseslist')">
+                </div>
+                <div class="search-list">
+                    <ul id="houseslist" style="display: none;">
+                        {% for house in houses %}
+                        <li>{{ house.name }} ({{ house.type }}) - {{ house.address }}</li>
+                        {% empty %}
+                        <li>Aucune maison visible.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <a href="{% url 'SignUp' %}">Inscrivez-vous pour en voir +</a>
+            </div>
+    {% endif %}    
     </div>
 </div>
+<!-- JS pour la recherche -->
+    <script>
+        function filterList(input, listId) {
+            const filter = input.value.toLowerCase();
+            const list = document.getElementById(listId);
+            const items = list.getElementsByTagName('li');
+            // Affiche ou cache la liste selon que le champ est vide
+            list.style.display = filter.length > 0 ? "block" : "none";
+            for (let i = 0; i < items.length; i++) {
+                const txt = items[i].textContent || items[i].innerText;
+                items[i].style.display = txt.toLowerCase().includes(filter) ? "" : "none";
+            }
+        }
+    </script>
 {% endblock %}
