@@ -33,8 +33,18 @@ class HouseDetailsAPIView(APIView):
 
         except Profile.DoesNotExist:
             return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
+    def put(self,request,user_id,house_id):
+        try :
+            # Récupérer le profil de l'utilisateur
+            profile = Profile.objects.get(user_id=user_id, house__id=house_id)
+            house = profile.house  # Maison associée au profil
+            serializer = HouseSerializer(house, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": f"Erreur lors de la mise à jour: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        
 class PeopleInHouseAPIView(APIView):
     permission_classes = [AllowAny]
     def get(self, request, house_id):
@@ -129,8 +139,8 @@ class EntityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, entity_id):
         entity = get_object_or_404(Entity, id=entity_id)  # Un seul objet, pas queryset
-        previous_state = entity.on  # État avant modification
-        new_state = request.data.get("on")
+        previous_state = entity.active  # État avant modificatiactive
+        new_state = request.data.get("active")
         # Vérifie si le champ "on" a changé
         if new_state is not None and str(previous_state).lower() != str(new_state).lower():
             house = entity.house
@@ -143,7 +153,7 @@ class EntityAPIView(APIView):
         serializer = EntitySerializer(entity, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
