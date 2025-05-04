@@ -2,13 +2,13 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Account Activation - SmartCity {% endblock %}
+{% block title %} Connexion administrateur - SmartCity {% endblock %}
 <!-- Main Content -->
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Admin Login</h2>
-        <p class="auth-subtitle">Access the admin dashboard</p>
+        <h2>Connexion administrateur</h2>
+        <p class="auth-subtitle">Accéder au tableau de bord administrateur</p>
         
         {% if messages %}
             {% for message in messages %}
@@ -32,7 +32,7 @@
                     <input type="password" name="password" required>
                 </div>
             </div>
-            <button type="submit" class="auth-button">Login</button>
+            <button type="submit" class="auth-button">Connexion</button>
         </form>
     </div>
 </div>

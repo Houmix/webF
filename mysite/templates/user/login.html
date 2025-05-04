@@ -2,14 +2,14 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Log in - SmartCity {% endblock %}
+{% block title %} Connexion - SmartCity {% endblock %}
 
 <!-- Main Content -->
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Welcome Back</h2>
-        <p class="auth-subtitle">Sign in to your account</p>
+        <h2>Bienvenue</h2>
+        <p class="auth-subtitle">Connectez-vous à votre compte</p>
 
         {% if messages %}
         {% for message in messages %}
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label>Mot de passe</label>
                 <div class="input-group">
                     <span class="material-icons-round">lock</span>
                     <input type="password" name="password" required>
@@ -36,15 +36,15 @@
             <div class="form-options">
                 <label class="remember-me">
                     <input type="checkbox" name="remember">
-                    <span>Remember me</span>
+                    <span>Se souvenir de moi</span>
                 </label>
-                <a href="{% url 'Forgot_Password' %}" class="forgot-password">Forgot Password?</a>
+                <a href="{% url 'Forgot_Password' %}" class="forgot-password">Mot de passe oublié ?</a>
             </div>
-            <button type="submit" class="auth-button">Sign In</button>
+            <button type="submit" class="auth-button">Connexion</button>
         </form>
 
         <p class="auth-footer">
-            Don't have an account? <a href="{% url 'SignUp' %}">Sign up</a>
+            Pas de compte ? <a href="{% url 'SignUp' %}">Créer un compte</a>
         </p>
     </div>
 </div>
