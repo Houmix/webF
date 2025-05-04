@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout as auth_logout, login as auth_login
-from forms import LoginForm, SignUpForm, ModifyProfil
+from forms import LoginForm, SignUpForm, ModifyProfil, IncidentForm, IncidentResponseForm
 from user.models import User
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_protect
@@ -221,6 +221,42 @@ def respond_incident(request, incident_id):
         incident.save()
     
     return redirect("Dashboard")
+
+def create_incident(request, entity_id):
+    entity = get_object_or_404(Entity, id=entity_id)
+
+    if request.method == 'POST':
+        form = IncidentForm(request.POST)
+        if form.is_valid():
+            incident = form.save(commit=False)
+            incident.entity = entity
+            incident.save()
+            return redirect('Dashboard')  # Rediriger vers le tableau de bord ou autre
+    else:
+        form = IncidentForm()
+
+    return render(request, 'dashboard/create_incident.html', {
+        'form': form,
+        'entity': entity
+    })
+def respond_to_incident(request, incident_id):
+    incident = get_object_or_404(Incident, id=incident_id)
+
+    if request.method == 'POST':
+        form = IncidentResponseForm(request.POST, instance=incident)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.resolved = True  # Marquer l’incident comme résolu
+            response.save()
+            return redirect('Dashboard')
+    else:
+        form = IncidentResponseForm(instance=incident)
+
+    return render(request, 'dashboard/respond_to_incident.html', {
+        'form': form,
+        'incident': incident
+    })
+
 # Données pour les courbes (extraites de FluxStat)
 from collections import defaultdict
 @login_required

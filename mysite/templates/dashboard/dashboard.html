@@ -68,18 +68,13 @@
                     <ul>
                         {% for incident in incidents %}
                             <li>
-                                <strong>{{ incident.description }}</strong> - {{ incident.date }}
-                                {% if incident.response %}
-                                    <p><em>Réponse : {{ incident.response }}</em></p>
-                                {% elif profile.isOwner or profile.role == "admin" %}
-                                    <form method="POST" action="{% url 'RespondIncident' incident.id %}">
-                                        {% csrf_token %}
-                                        <textarea name="response" rows="2" placeholder="Votre réponse..."></textarea>
-                                        <button type="submit">Répondre</button>
-                                    </form>
+                                <strong>{{ incident.type }}</strong> - {{ incident.date }}
+                                {% if not incident.resolved %}
+                                    <a href="{% url 'AnswerIncident' incident.id %}">Répondre</a>
                                 {% else %}
-                                    <p><em>En attente de réponse...</em></p>
+                                    <span>Déjà résolu</span>
                                 {% endif %}
+
                             </li>
                         {% empty %}
                             <li>Aucun incident.</li>
@@ -129,10 +124,11 @@
 
                     <ul id="entityList">
                         {% for entity in entities %}
-                            <li class="entity-item">
+                            <li class="entity-item" style="flex-direction: column;">
                                 <div>
                                     <p>{{ entity.name }}</p>
                                     <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
+                                    <a href="{% url 'CreateIncident' entity.id %}">Déclarer un incident</a>
                                 </div>
                                 
                                 <!-- Canvas pour les graphiques de chaque entité -->

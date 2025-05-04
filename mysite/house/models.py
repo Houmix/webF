@@ -24,7 +24,7 @@ class Entity(models.Model):
         # tu peux en ajouter d'autres si besoin
     ]
     name = models.CharField(max_length=128)
-    photo = models.ImageField(upload_to="entity/")
+    photo = models.ImageField(upload_to="entity/", blank=True, null=True)
     type = models.CharField(max_length=255, choices=ENTITY_TYPES)
     house = models.ForeignKey(House, on_delete=models.CASCADE,related_name='entities')
     active = models.BooleanField(default=True)
@@ -70,8 +70,18 @@ class News(models.Model):
 
 
 class Incident(models.Model):
+    INCIDENTS_TYPES = [
+        ('technique', 'Technique'),
+        ('budgétaire', 'Budgétaire'),
+        ('internet', 'Internet'),
+        ('pièce','Pièce')
+        # tu peux en ajouter d'autres si besoin
+    ]
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name="incident")
     description = models.CharField(max_length=256)
+    type =  models.CharField(max_length=255, choices=INCIDENTS_TYPES)
+    date = models.DateField(default=timezone.now)
     resolved = models.BooleanField(default=False)
     response = models.CharField(max_length=256, null=True,blank=True)
-
+    def __str__(self):
+        return f"{self.entity.name} - résolu : {self.resolved} - réponse {self.response}"
