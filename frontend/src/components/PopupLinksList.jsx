@@ -1,48 +1,42 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useData } from "../DataContext";
-/**
- * PopupLinksList
- * Affiche la liste des liens associés à un bâtiment (ou autre entité),
- * avec un bouton pour fermer la popup.
- *
- * Props :
- *   - visible : bool (affichage ou non)
- *   - data : objet avec champs { sourceId, targetId, linkMode, links }
- *   - onClose : fonction de fermeture
- *   - stageWidth, stageHeight : dimensions de la popup
- */
-export default function PopupLinksList({
-  visible,
-  data,
-  onClose,
-  stageWidth,
-  stageHeight,
-}) {
 
-
-const { api } = useData();
-
-
-
-
-const deleteLink = async (linkId) => {
-  try {
-    const response = await api.delete('/house/link/', {
-      data: { id: linkId },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.status === 204) {
-      alert('Lien supprimé !');
-      // Mets à jour l’état local ici
-    } else {
-      alert(response.data?.error || 'Erreur lors de la suppression');
+export default function PopupLinksList({ visible, data, onClose, stageWidth, stageHeight }) {
+  const { api } = useData();
+  const [links, setLinks] = useState([]);
+  // Fonction utilitaire pour recharger les liens
+  const refreshLinks = async () => {
+    if (data?.sourceId) {
+      try {
+        const res = await api.get(`/house/link/?entity_id=${data.sourceId}`);
+        setLinks(res.data || []);
+      } catch {
+        setLinks([]);
+      }
     }
-  } catch (err) {
-    alert('Erreur réseau');
-  }
-};
+  };
+
+  useEffect(() => {
+    if (visible) refreshLinks();
+    // eslint-disable-next-line
+  }, [visible, data?.sourceId]);
+
+  const deleteLink = async (linkId) => {
+    try {
+      const response = await api.delete('/house/link/', {
+        data: { id: linkId },
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.status === 204) {
+        alert('Lien supprimé !');
+        refreshLinks();
+      } else {
+        alert(response.data?.error || 'Erreur lors de la suppression');
+      }
+    } catch (err) {
+      alert('Erreur réseau');
+    }
+  };
 
 
 

@@ -41,8 +41,8 @@ export default function PopupLinks({
 
     // Construire l'objet à envoyer
     // Extraire l'id numérique attendu par l'API
-    const sourceId = parseInt(data.sourceId.replace(/^E/, ""), 10);
-    const targetId = parseInt(data.targetId.replace(/^E/, ""), 10);
+    const sourceId = parseInt(data.sourceId, 10);
+    const targetId = parseInt(data.targetId, 10);
     const linkData = {
       source: sourceId,
       target: targetId,

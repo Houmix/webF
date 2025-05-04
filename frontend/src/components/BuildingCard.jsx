@@ -32,11 +32,11 @@ function BuildingCard({
   const sceneHeight = 100;
   const contentPadding = 10;
 
-  // State pour les coordonnées et les données du bâtiment
-  const [data, setData] = useState(initialData);
-
   // API context
   const { api } = useData();
+
+  // State pour les coordonnées et les données du bâtiment
+  const [data, setData] = useState(initialData);
 
   // Function to update an entity (PUT)
   const handleUpdateEntity = async (entityId, updatedFields) => {
@@ -221,26 +221,31 @@ function BuildingCard({
   };
 
   const handleToggleActive = async (e) => {
-    // Stop propagation to avoid event bubbling
-    e.cancelBubble = true;
-    e.evt.stopPropagation();
+  // Stop propagation to avoid event bubbling
+  e.cancelBubble = true;
+  e.evt.stopPropagation();
 
-    const updatedFields = {
-      ...data,
-      active: !data.active,
-    };
-
-    try {
-      await handleUpdateEntity(data.id, { active: updatedFields.active });
-      // Optionally notify parent
-      if (onToggleActive) {
-        onToggleActive({ ...data, active: updatedFields.active });
-      }
-    } catch (error) {
-      // Optionally display an error to the user
-      console.error('Failed to update entity status', error);
-    }
+  const updatedActive = !data.active;
+  const updatedFields = {
+    ...data,
+    active: updatedActive,
   };
+
+  // Optimistic update
+  setData(prev => ({ ...prev, active: updatedActive }));
+
+  try {
+    await handleUpdateEntity(data.id, { active: updatedActive });
+    // Optionally notify parent
+    if (onToggleActive) {
+      onToggleActive({ ...data, active: updatedActive });
+    }
+  } catch (error) {
+    // Revenir à l'état précédent en cas d'erreur
+    setData(prev => ({ ...prev, active: !updatedActive }));
+    console.error('Failed to update entity status', error);
+  }
+};
 
   return (
     <Group
@@ -512,27 +517,27 @@ function BuildingCard({
           fill="#999999"
         />
         <Group x={cardWidth - 40} y={85} onClick={handleToggleActive} style={{ cursor: 'pointer' }}>
-          {/* Fond du switch */}
-          <Rect
-            width={24}
-            height={14}
-            fill={data.active ? "#4ade80" : "#fca5a5"}
-            cornerRadius={7}
-            stroke={data.active ? "#16a34a" : "#ef4444"}
-            strokeWidth={1}
-          />
-          {/* Bouton du switch */}
-          <Circle
-            x={data.active ? 16 : 8}
-            y={7}
-            radius={6}
-            fill={data.active ? "#16a34a" : "#ffffff"}
-            stroke={data.active ? "#15803d" : "#ef4444"}
-            strokeWidth={1}
-            shadowBlur={2}
-            shadowColor="rgba(0,0,0,0.3)"
-          />
-        </Group>
+  {/* Fond du switch */}
+  <Rect
+    width={24}
+    height={14}
+    fill={data.active ? "#4ade80" : "#fca5a5"}
+    cornerRadius={7}
+    stroke={data.active ? "#16a34a" : "#ef4444"}
+    strokeWidth={1}
+  />
+  {/* Bouton du switch */}
+  <Circle
+    x={data.active ? 16 : 8}
+    y={7}
+    radius={6}
+    fill={data.active ? "#16a34a" : "#ffffff"}
+    stroke={data.active ? "#15803d" : "#ef4444"}
+    strokeWidth={1}
+    shadowBlur={2}
+    shadowColor="rgba(0,0,0,0.3)"
+  />
+</Group>
       </Group>
 
       {/* Menu contextuel personnalisé */}

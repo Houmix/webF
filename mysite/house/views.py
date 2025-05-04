@@ -166,6 +166,29 @@ class EntityAPIView(APIView):
             print("ok") 
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, id):
+        try:
+            user = request.data.get("user")
+            profile = get_object_or_404(Profile,house=id.house.id,user=user)
+            entity = get_object_or_404(Entity, id=id)
+            if profile.isOwner == 1 :
+                
+                # Supprimer ensuite l'objet
+                entity.delete()
+                return Response(
+                {"detail": "L'objet a été supprimé."},
+                status=status.HTTP_204_NO_CONTENT
+                )
+
+            else :
+                incident = RequestSuppressionEntity.objects.create(entity = id, user=user)
+                return Response(
+                {"detail": "Une demande de suppression à été effectuée"},
+                status=status.HTTP_204_NO_CONTENT
+                )
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LinkAPIView(APIView):
@@ -176,6 +199,20 @@ class LinkAPIView(APIView):
             link = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self,request):
+        
+        try:
+            link = request.data.get("id")
+            print(request.data) 
+            
+            link = get_object_or_404(Link, id=link)
+            link.delete()
+            return Response(
+                {"detail": "Le lien a été supprimé."},
+                status=status.HTTP_204_NO_CONTENT
+                )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileAPIView(APIView):
     permission_classes = [AllowAny]

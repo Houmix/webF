@@ -88,8 +88,8 @@ React.useEffect(() => {
           const convertedEntities = house.entities.map(entity => {
             // Extraire les links de cette entity
             const entityLinks = (entity.links || []).map(link => ({
-              id: `L${String(link.id).padStart(3, '0')}`,
-              targetId: `E${String(link.target).padStart(3, '0')}`,
+              id: link.id,
+              targetId: link.target,
               type: link.type,
               value: parseInt(link.value, 10) || 0
             }));
