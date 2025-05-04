@@ -4,7 +4,7 @@ import { Rect, Text, Group, Image, Line, Circle } from "react-konva";
 import useImage from "use-image";
 // Ajout du header et de la barre de côté pour ProjectCard
 import ProjectForm from "./ProjectForm";
-import ProjectEditPopup from "./ProjectEditPopup";
+
 
 // SVG paysage par défaut
 const DefaultLandscape = ({ x, y, width, height }) => (
@@ -78,7 +78,7 @@ export default function ProjectCard({
   const cardHeight = 150;
   const contentPadding = 10;
   const [data, setData] = useState(initialData);
-  // State pour la popup d'édition
+
   const [editPopupVisible, setEditPopupVisible] = useState(false);
 
   // Calcul du flux électrique net (entrant - sortant)
@@ -186,7 +186,7 @@ export default function ProjectCard({
     setTooltip({ visible: false, text: "", x: 0, y: 0 });
     try {
       // Suppression via l'endpoint requis
-      await api.delete(`house/houseDetails/${localStorage.getItem("api_session_userId")}/${data.id}`);
+      await api.delete(`house/deleteHouse/${data.id}`);
       if (onDelete) onDelete(data.id);
     } catch (error) {
       alert(error.message);
