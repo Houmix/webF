@@ -43,7 +43,9 @@ class Entity(models.Model):
     photo = models.ImageField(upload_to="entity/")
     type = models.CharField(max_length=255, choices=ENTITY_TYPES)
     house = models.ForeignKey(House, on_delete=models.CASCADE,related_name='entities')
-    on = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
     def __str__(self):
         return f"{self.name} - {self.house.name}"
     def save(self, *args, **kwargs):
@@ -51,11 +53,11 @@ class Entity(models.Model):
         print("lalalla")
         if self.pk:
             old = Entity.objects.get(pk=self.pk)
-            if old.on != self.on:
+            if old.active != self.active:
                 # Enregistre dans l'historique
-                EntityHistory.objects.create(entity=self, on=self.on)
+                EntityHistory.objects.create(entity=self, active=self.active)
 
-                if self.on:
+                if self.active:
                     for flux_stat in self.flux_stats.all():
                         flux_stat.update_flux_value()
                 else:
