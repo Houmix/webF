@@ -40,10 +40,12 @@ function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
       setSearchResults([]);
       return;
     }
-    // On filtre côté frontend uniquement
+    // On filtre côté frontend uniquement, et on retire le user de session
     const filtered = localPeople.filter(p =>
-      (p.user_name && p.user_name.toLowerCase().includes(term.toLowerCase())) ||
-      (String(p.user_id).includes(term))
+      p.user_id !== userId && (
+        (p.user_name && p.user_name.toLowerCase().includes(term.toLowerCase())) ||
+        (String(p.user_id).includes(term))
+      )
     );
     setSearchResults(filtered);
   };
