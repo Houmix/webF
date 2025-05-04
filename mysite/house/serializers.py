@@ -20,7 +20,7 @@ class EntitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entity
-        fields = ['id', 'type','name', 'photo','active','x','y', 'flux_stats', 'links']
+        fields = ['id', 'type','house','name', 'photo','active','x','y', 'flux_stats', 'links']
 
 
 """class HouseSerializer(serializers.ModelSerializer):

@@ -139,26 +139,32 @@ class DeleteHouseAPIView(APIView):
 
 class EntityAPIView(APIView):
     permission_classes = [AllowAny]
-    def post(self, request, house_id):
+    def post(self, request, id):
         data = request.data.copy()
         # On récupère la maison liée à ce user via Profile
-        profile = get_object_or_404(Profile,house__id=house_id)
-        data['house'] = profile.house.id  # On l'ajoute aux données envoyées
-        serializer = EntitySerializer(data=data)
+        
+        print(id)
+        print(request.user)
+        profile = get_object_or_404(Profile,house__id=id, user=request.data.get("user_id"))
+        data['house'] = id  # On l'ajoute aux données envoyées
+        serializer = EntitySerializer(data=data, partial=True)
         if serializer.is_valid():
             entity = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request, entity_id):
-        entity = get_object_or_404(Entity, id=entity_id)  # Un seul objet, pas queryset
+    def put(self, request, id):
+        entity = get_object_or_404(Entity, id=id)  # Un seul objet, pas queryset
         previous_state = entity.active  # État avant modificatiactive
         new_state = request.data.get("active")
+        user = request.data.get("user_id")
         # Vérifie si le champ "on" a changé
         if new_state is not None and str(previous_state).lower() != str(new_state).lower():
             house = entity.house
             # Tu peux utiliser `get()` ici car chaque user n'a qu'un seul profile par house
-            profile = get_object_or_404(Profile, user=request.user, house=house)
+            
+            profile = get_object_or_404(Profile, user__id=user, house=house)
             # Exemple de logique : +10 points si on l'active, -10 si on le désactive
+            
             if new_state in [True, 'true', 'True', 1, '1']:
                 profile.points += 10
                 profile.save()
@@ -167,11 +173,11 @@ class EntityAPIView(APIView):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def delete(self, request, entity_id):
+    def delete(self, request, id):
         try:
             user = request.data.get("user")
-            profile = get_object_or_404(Profile,house=entity_id.house.id,user=user)
-            entity = get_object_or_404(Entity, id=entity_id)
+            profile = get_object_or_404(Profile,house=id.house.id,user=user)
+            entity = get_object_or_404(Entity, id=id)
             if profile.isOwner == 1 :
                 
                 # Supprimer ensuite l'objet
@@ -182,7 +188,7 @@ class EntityAPIView(APIView):
                 )
 
             else :
-                incident = RequestSuppressionEntity.objects.create(entity = entity_id, user=user)
+                incident = RequestSuppressionEntity.objects.create(entity = id, user=user)
                 return Response(
                 {"detail": "Une demande de suppression à été effectuée"},
                 status=status.HTTP_204_NO_CONTENT

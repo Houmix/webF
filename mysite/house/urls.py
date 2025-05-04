@@ -9,8 +9,8 @@ urlpatterns = [
 
     path('peopleInHouse/<int:house_id>/', PeopleInHouseAPIView.as_view(), name='house-people'),#Les gens qui ont un profile avec cette maison (access ou non)
     
-    path('entity/<int:house_id>/', EntityAPIView.as_view(), name='entity-create'),#créer une entité
-    path('entity/<int:entity_id>/', EntityAPIView.as_view(), name='entity-put'),#mettre a jour les infos d'une entité
+    path('entity/<int:id>/', EntityAPIView.as_view(), name='entity-create'),#créer une entité
+    #path('entity/<int:id>/', EntityAPIView.as_view(), name='entity-put'),#mettre a jour les infos d'une entité
     path('link/', LinkAPIView.as_view(), name='link-create-delete'),#créer un lien entre 2 entité
     path('profile/<int:user_id>/<int:house_id>/',ProfileAPIView.as_view(),name='profile-put')#supprimer ou accepter l'acces d'un utilisateur à une maison .delete put
 ]

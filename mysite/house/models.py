@@ -23,9 +23,9 @@ class Entity(models.Model):
         ('internet', 'Internet'),
         # tu peux en ajouter d'autres si besoin
     ]
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, blank=True, null=True)
     photo = models.ImageField(upload_to="entity/", blank=True, null=True)
-    type = models.CharField(max_length=255, choices=ENTITY_TYPES)
+    type = models.CharField(max_length=255, choices=ENTITY_TYPES, blank=True, null=True )
     house = models.ForeignKey(House, on_delete=models.CASCADE,related_name='entities')
     active = models.BooleanField(default=True)
     x = models.IntegerField(default=0)
@@ -34,12 +34,11 @@ class Entity(models.Model):
         return f"{self.name} - {self.house.name}"
     def save(self, *args, **kwargs):
         # On vérifie si l'objet existe déjà
-        print("lalalla")
         if self.pk:
             old = Entity.objects.get(pk=self.pk)
             if old.active != self.active:
                 # Enregistre dans l'historique
-                EntityHistory.objects.create(entity=self, active=self.active)
+                EntityHistory.objects.create(entity=self, on=self.active)
 
                 if self.active:
                     for flux_stat in self.flux_stats.all():
@@ -47,6 +46,8 @@ class Entity(models.Model):
                 else:
                     for flux_stat in self.flux_stats.all():
                         flux_stat.update_flux_value()  # gère display_value sans toucher à value
+                
+                #profiles = Profile.objects.filter(house=self.house)
         
         super().save(*args, **kwargs)
 
