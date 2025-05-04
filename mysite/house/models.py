@@ -40,7 +40,7 @@ class Entity(models.Model):
         # tu peux en ajouter d'autres si besoin
     ]
     name = models.CharField(max_length=128)
-    photo = models.ImageField(upload_to="entity/")
+    photo = models.ImageField(upload_to="entity/", blank=True, null=True)
     type = models.CharField(max_length=255, choices=ENTITY_TYPES)
     house = models.ForeignKey(House, on_delete=models.CASCADE,related_name='entities')
     active = models.BooleanField(default=True)

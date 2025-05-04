@@ -127,18 +127,20 @@ class DeleteHouseAPIView(APIView):
 
 class EntityAPIView(APIView):
     permission_classes = [AllowAny]
-    def post(self, request, house_id):
+    def post(self, request, id):
         data = request.data.copy()
         # On récupère la maison liée à ce user via Profile
-        profile = get_object_or_404(Profile,house__id=house_id)
+        profile = Profile.objects.filter(house__id=id).first()
+        if not profile:
+            return Response({'detail': 'Profile not found for this house.'}, status=status.HTTP_404_NOT_FOUND)
         data['house'] = profile.house.id  # On l'ajoute aux données envoyées
         serializer = EntitySerializer(data=data)
         if serializer.is_valid():
             entity = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request, entity_id):
-        entity = get_object_or_404(Entity, id=entity_id)  # Un seul objet, pas queryset
+    def put(self, request, id):
+        entity = get_object_or_404(Entity, id=id)  # Un seul objet, pas queryset
         previous_state = entity.active  # État avant modificatiactive
         new_state = request.data.get("active")
         # Vérifie si le champ "on" a changé
