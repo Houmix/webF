@@ -311,11 +311,17 @@ export default function ProjectCard({
             height={22}
             fontSize={16}
             fill="#3da9fc"
-            onClick={handleEdit}
+
             onTap={handleEdit}
             align="center"
             verticalAlign="middle"
             style={{ cursor: "pointer" }}
+            onClick={() => {
+              if (typeof onShowParticipantsPopup === "function") {
+                onShowParticipantsPopup(data, false);
+              }
+              setMenu((m) => ({ ...m, visible: false }));
+            }}
             onMouseEnter={(e) =>
               setTooltip({
                 visible: true,
@@ -370,7 +376,7 @@ export default function ProjectCard({
             style={{ cursor: "pointer" }}
             onClick={() => {
               if (typeof onShowParticipantsPopup === "function") {
-                onShowParticipantsPopup(data);
+                onShowParticipantsPopup(data, true);
               }
               setMenu((m) => ({ ...m, visible: false }));
             }}

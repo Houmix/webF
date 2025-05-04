@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useData } from "../DataContext";
 
-function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
+function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate, editMode = false }) {
   // Gestion de l'état local pour la liste des participants et le champ d'ajout
   const [localPeople, setLocalPeople] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,7 +84,39 @@ function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
     }
   };
 
+  const [formData, setFormData] = React.useState({
+    name: data.name || '',
+    address: data.address || '',
+    type: data.type || '',
+  });
+
+  React.useEffect(() => {
+    setFormData({
+      name: data.name || '',
+      address: data.address || '',
+      type: data.type || '',
+    });
+  }, [data]);
+
   if (!visible) return null;
+
+
+
+  const onAcceptChanges = async () => {
+    try {
+      await api.put(`house/houseDetails/${userId}/${data.id}/`, {
+        name: formData.name,
+        address: formData.address,
+        type: formData.type,
+      });
+      alert('Modifications enregistrées avec succès.');
+      if (onParticipantsUpdate) onParticipantsUpdate();
+    } catch (error) {
+      alert('Erreur lors de la sauvegarde : ' + (error.message || error));
+    }
+  };
+
+
   return (
     <div
       className="participants-popup-container"
@@ -158,6 +190,8 @@ function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
           gap: 16,
         }}
       >
+        {editMode ? (
+                <>
         {/* Barre de recherche collée en haut */}
         <div style={{
           position: 'sticky',
@@ -236,41 +270,103 @@ function ParticipantsPopup({ visible, data, onClose, onParticipantsUpdate }) {
               <span style={{ color: "#666", fontSize: 15, flex: 2 }}>
                 {person.role}
               </span>
-              <button
-                style={{
-                  background: "linear-gradient(90deg,#90e0ef,#3da9fc)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  fontWeight: 600,
-                  fontSize: 13,
-                  padding: "5px 14px",
-                  marginRight: 10,
-                  cursor: "pointer",
-                }}
-                onClick={() => handleChangeRole(person.user_id)}
-              >
-                Changer rôle
-              </button>
-              <button
-                style={{
-                  background: "linear-gradient(90deg,#ff5252,#ffb347)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  fontWeight: 600,
-                  fontSize: 13,
-                  padding: "5px 14px",
-                  cursor: "pointer",
-                }}
-                onClick={() => handleRemoveParticipant(person.user_id)}
-              >
-                Supprimer
-              </button>
+              
+                  <button
+                    style={{
+                      background: "linear-gradient(90deg,#90e0ef,#3da9fc)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      fontSize: 13,
+                      padding: "5px 14px",
+                      marginRight: 10,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleChangeRole(person.user_id)}
+                  >
+                    Changer rôle
+                  </button>
+                  <button
+                    style={{
+                      background: "linear-gradient(90deg,#ff5252,#ffb347)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      fontSize: 13,
+                      padding: "5px 14px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleRemoveParticipant(person.user_id)}
+                  >
+                    Supprimer
+                  </button>
+               
             </div>
           ))}
         </div>
-        
+        </>
+              ) : (
+                // Formulaire affiché quand editMode === false
+          <form style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 18,
+            maxWidth: 420,
+            margin: '0 auto',
+            background: '#f8fafd',
+            borderRadius: 12,
+            padding: 24,
+            boxShadow: '0 2px 12px #3da9fc15',
+          }}>
+            <label style={{ fontWeight: 600 }}>Nom du projet :
+              <input
+                type="text"
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ccc', marginTop: 4 }}
+              />
+            </label>
+            <label style={{ fontWeight: 600 }}>Adresse :
+              <input
+                type="text"
+                value={formData.address}
+                onChange={e => setFormData({ ...formData, address: e.target.value })}
+                style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ccc', marginTop: 4 }}
+              />
+            </label>
+            <label style={{ fontWeight: 600 }}>Type de city :
+              <input
+                type="text"
+                value={formData.type}
+                onChange={e => setFormData({ ...formData, type: e.target.value })}
+                style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ccc', marginTop: 4 }}
+              />
+            </label>
+            <button
+              type="button"
+              style={{
+                marginTop: 18,
+                padding: '10px 24px',
+                borderRadius: 8,
+                border: 'none',
+                background: '#3da9fc',
+                color: '#fff',
+                fontWeight: 600,
+                fontSize: 16,
+                cursor: 'pointer',
+                alignSelf: 'flex-end'
+              }}
+              onClick={onAcceptChanges}
+            >
+              Accept Changes
+            </button>
+          </form>
+        )
+        }
+
+              
         
       </div>
     </div>
