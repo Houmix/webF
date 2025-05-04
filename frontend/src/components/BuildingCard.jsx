@@ -269,13 +269,13 @@ function BuildingCard({
       <Text
         x={cardWidth / 2}
         y={10}
-        text={data.infos.type}
+        text={data.infos.name}
         fontSize={16}
         fontFamily="Arial"
         fill="white"
         align="center"
         fontStyle="bold"
-        offsetX={data.infos.type.length * 4} // Centrage approximatif
+        offsetX={data.infos.name.length * 4} // Centrage approximatif
       />
 
       {/* Visualisation de la maison dans l'en-tête */}
@@ -334,7 +334,7 @@ function BuildingCard({
         />
         {/* Nom du bâtiment */}
         <Text
-          text={data.infos.name}
+          text={data.infos.type}
           fontSize={12}
           fontFamily="Arial"
           fontStyle="bold"
