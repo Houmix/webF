@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} <title>Erreur d’activation - SmartCity</title> {% endblock %}
+{% block title %} <title>Activation Error - SmartCity</title> {% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Erreur d’activation</h2>
-        <p class="auth-subtitle">Un problème est survenu lors de l’activation de votre compte</p>
+        <h2>Activation Error</h2>
+        <p class="auth-subtitle">There was a problem activating your account</p>
         
         <div style="text-align: center; margin: 2rem 0;">
             <span class="material-icons-round" style="font-size: 4rem; color: var(--danger);">error</span>
         </div>
         
         <p style="text-align: center; margin-bottom: 2rem;">
-            Nous n’avons pas pu activer votre compte. Le lien d’activation est peut-être invalide ou expiré.
+            We couldn't activate your account. The activation link may be invalid or expired.
         </p>
         
-        <a href="{% url 'SignUp' %}" class="auth-button" style="text-align: center; text-decoration: none;">Créer un nouveau compte</a>
+        <a href="{% url 'SignUp' %}" class="auth-button" style="text-align: center; text-decoration: none;">Sign Up Again</a>
         
         <p class="auth-footer">
-            <a href="{% url 'Home' %}">Retour à l’accueil</a>
+            <a href="{% url 'Home' %}">Back to Home</a>
         </p>
     </div>
 </div>

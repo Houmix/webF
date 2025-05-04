@@ -4,5 +4,3 @@ from .models import *
 admin.site.register(House)
 admin.site.register(Entity)
 admin.site.register(EntityHistory)
-admin.site.register(News)
-admin.site.register(Incident)

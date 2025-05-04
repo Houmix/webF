@@ -44,11 +44,11 @@
                     <div class="account-dropdown">
                         <a href="{% url 'MySpace' %}" class="dropdown-item">
                             <span class="material-icons-round">person</span>
-                            Mon profil
+                            My Profile
                         </a>
                         <a href="{% url 'Dashboard' %}" class="dropdown-item">
                             <span class="material-icons-round">dashboard</span>
-                            Tableau de bord
+                            Dashboard
                         </a>
                         <a href="http://localhost/5173/?userid={{request.user.id}}?username={{request.user.username}}" class="dropdown-item">
                             <span class="material-icons-round">Pannel</span>
@@ -56,15 +56,15 @@
                         </a>
                         <a href="{% url 'Logout' %}" class="dropdown-item">
                             <span class="material-icons-round">logout</span>
-                            Déconnexion
+                            Logout
                         </a>
                     </div>
                 </div>
             </div>
             {% else %}
             <div class="auth-buttons">
-                <a href="{% url 'Login' %}" class="auth-button">Connexion</a>
-                <a href="{% url 'SignUp' %}" class="auth-button signup">Créer un compte</a>
+                <a href="{% url 'Login' %}" class="auth-button">Login</a>
+                <a href="{% url 'SignUp' %}" class="auth-button signup">Sign Up</a>
             </div>
             {%endif%}
         </div>
@@ -89,6 +89,27 @@
                             <span>Contact</span>
                         </a>
                     </li>
+                    {% if request.user.is_authenticated%}
+                    <li class="menu-item-with-submenu">
+                        <a href="#" class="menu-link">
+                            <span class="material-icons-round">admin_panel_settings</span>
+                            <span>Admin</span>
+                            <span class="material-icons-round expand-icon">expand_more</span>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#" class="submenu-link">
+                                    <span class="material-icons-round">dashboard</span>
+                                    <span>Tableau de bord</span>
+                                </a></li>
+                            <li><a href="#" class="submenu-link">
+                                    <span class="material-icons-round">people</span>
+                                    <span>Gérer les utilisateurs</span>
+                                </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+
+                    {% endif %}
                 </ul>
             </nav>
         </div>

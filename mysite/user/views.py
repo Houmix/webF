@@ -17,10 +17,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.auth import update_session_auth_hash
 from forms import PasswordChangeForm
-from house.models import House,Entity,Incident, News
-from user.models import Profile,RequestSuppression,RequestSuppressionEntity
+from house.models import House,Entity,EntityHistory
+from user.models import Profile
 from log.models import FluxStat,FluxStatHistory
-from django.views.decorators.http import require_POST
 
 def login(request):
     form = LoginForm()
@@ -261,7 +260,6 @@ def respond_to_incident(request, incident_id):
 from collections import defaultdict
 @login_required
 def dashboard_view(request):
-
     user = request.user
     houses = House.objects.all()
 
@@ -271,13 +269,6 @@ def dashboard_view(request):
 
     entities = Entity.objects.filter(house=selected_house) if profile and profile.access else []
     flux_stats = FluxStat.objects.filter(entity__house=selected_house) if profile and profile.access else []
-
-    supp_asked = RequestSuppression.objects.filter(house=selected_house, response=False) if profile and profile.access else []
-    incidents = Incident.objects.filter(entity__house=selected_house) if profile and profile.access else []
-
-    supp_entity_asked = RequestSuppressionEntity.objects.filter(entity__house=selected_house, response=False) if profile and profile.access else []
-
-    news = News.objects.filter(house=selected_house).order_by('-date') if selected_house else []
 
     # Résumé simple pour affichage brut (texte)
     flux_summary = defaultdict(list)
@@ -344,10 +335,6 @@ def dashboard_view(request):
         'global_flux_values': global_flux_values,
         'flux_history_graph_data': flux_history_graph_data,
         'real_history_graph_data': real_history_graph_data,
-        'supp_asked': supp_asked,
-        'incidents': incidents,
-        'supp_entity_asked':supp_entity_asked,
-        "news": news
     })
 from django.http import HttpResponse
 from django.template.loader import get_template

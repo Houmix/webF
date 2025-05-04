@@ -1,15 +1,26 @@
 from django.db import models
+# Create your models here.
 from django.utils import timezone
 
+    
 class House(models.Model):
     type = models.CharField(
-        max_length=128
+        max_length=20,
+        choices=[
+            ('Maison','Maison'),
+            ('Entreprise', 'Entreprise'),
+            ('Ecole', 'Ecole'),
+            ('Mairie', 'Mairie'),
+            ('Gare','Gare')
+        ],
+        default='Maison'
     )
     name = models.CharField(max_length=128)
     photo = models.ImageField(upload_to="house/")
     address = models.CharField(max_length=255)
-    coordX = models.FloatField(default=0)
-    coordY = models.FloatField(default=0)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="houses")
+    coordX = models.FloatField()
+    coordY = models.FloatField()
     def __str__(self):
         return self.name
     
@@ -81,7 +92,7 @@ class Incident(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name="incident")
     description = models.CharField(max_length=256)
     type =  models.CharField(max_length=255, choices=INCIDENTS_TYPES)
-    date = models.DateField(default=timezone.now)
+    date = models.DateField(default=timezone.now())
     resolved = models.BooleanField(default=False)
     response = models.CharField(max_length=256, null=True,blank=True)
     def __str__(self):

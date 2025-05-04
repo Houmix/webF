@@ -2,14 +2,16 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Créer un compte - SmartCity {% endblock %}
+{% block title %} Sign Up - SmartCity {% endblock %}
 
 <!-- Main Content -->
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Créer un compte</h2>
-        <p class="auth-subtitle">Rejoignez SmartCity aujourd'hui</p>
+        <h2>Create Account</h2>
+        <p class="auth-subtitle">Join SmartCity today</p>
+
+        
 
         <form method="POST" enctype="multipart/form-data" class="auth-form">
             {% csrf_token %}
@@ -34,7 +36,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Prénom</label>
+                <label>Prenom</label>
                 <div class="input-group">
                     <span class="material-icons-round">person</span>
                     <input type="text" name="first_name" required>
@@ -71,7 +73,7 @@
             </div>
         
             <div class="form-group">
-                <label>Email</label>
+                <label>E-mail</label>
                 <div class="input-group">
                     <span class="material-icons-round">email</span>
                     <input type="email" name="email" required>
@@ -107,7 +109,7 @@
         
 
         <p class="auth-footer">
-            Vous avez déjà un compte ? <a href="{% url 'Login' %}">Connexion</a>
+            Already have an account? <a href="{% url 'Login' %}">Log in</a>
         </p>
     </div>
 </div>

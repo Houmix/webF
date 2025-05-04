@@ -12,6 +12,7 @@ import {
 } from "react-konva";
 
 import BuildingCard from "./components/BuildingCard";
+import EntityForm from "./components/EntityForm";
 import ProjectCard from "./components/ProjectCard";
 import PopupLinks from "./components/PopupLinks";
 import PopupLinksList from "./components/PopupLinksList"; // Import the new component
@@ -47,6 +48,32 @@ console.log("userId", userId);
 React.useEffect(() => {
   if (!houseId || !userId) return;
   
+    // utilisez directement 'api' ici, il est déjà accessible
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Récupère les champs du formulaire
+    // (adapte selon tes inputs : name, type, photo, active, x, y, etc.)
+    const entityData = {
+      name,
+      type,
+      photo,
+      active,
+      x,
+      y,
+      // Ajoute d'autres champs si besoin
+    };
+  
+    try {
+      // Envoie la requête POST à l’API
+      await api.post(`/house/entity/${houseId}/`, entityData);
+      // Optionnel : callback de succès, reset form, fermer popup, etc.
+      if (onCreated) onCreated();
+    } catch (error) {
+      alert("Erreur lors de la création de l'entité");
+    }
+  };
+
+
   const fetchAndConvertBuilding = async () => {
     try {
       const res = await api.get(`http://localhost:8000/house/houseDetails/${userId}/${houseId}/`);
@@ -345,46 +372,34 @@ React.useEffect(() => {
     setFormLoading(true);
     setFormError("");
     setFormSuccess("");
-    // Générer un id unique simple (ex: timestamp)
-    const newId = `E${Date.now()}`;
-    const newBuilding = {
-      id: newId,
-      image: formData.image,
-      coords: { x: Number(formData.coordsX), y: Number(formData.coordsY) },
-      infos: {
-        type: formData.type,
-        name: formData.name,
-        address: formData.address,
-      },
-      fluxStats: {
-        electricity: { value: formData.electricity },
-        water: { value: formData.water },
-        internet: { value: formData.internet },
-      },
-      links: [],
+
+    // Structure à envoyer à l'API (adapter selon backend)
+    const entityData = {
+      name: formData.name,
+      type: formData.type,
+      photo: formData.image,
+      active: true,
+      x: Number(formData.coordsX),
+      y: Number(formData.coordsY)
     };
+
     try {
-      // Appel API (optionnel)
-      const response = await fetch("/api/projects/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newBuilding),
-      });
-      if (!response.ok) throw new Error("Erreur lors de la création du projet");
+      // Envoie la requête POST à l’API REST
+      await api.post(`/house/entity/${houseId}/`, entityData);
       setFormSuccess("Projet créé avec succès !");
-      // Ajoute le projet dans le state
-      setBuildings((prev) => [...prev, newBuilding]);
+      // Rafraîchir la liste des bâtiments (optionnel)
+      fetchAndConvertBuilding && fetchAndConvertBuilding();
+      // Reset du formulaire
       setFormData({
         name: "",
         type: "",
-        address: "",
         image: "",
         coordsX: 100,
         coordsY: 100,
       });
       setShowForm(false);
     } catch (err) {
-      setFormError(err.message);
+      setFormError(err.message || "Erreur lors de la création du projet");
     } finally {
       setFormLoading(false);
     }
@@ -630,111 +645,15 @@ React.useEffect(() => {
           )}
           {showForm && (
             <div className="form-group-fullwidth">
-              <form onSubmit={handleFormSubmit}>
-                <div className="form-group type-group">
-                  <label>
-                    Nom du projet :<br />
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      required
-                      className="form-input"
-                    />
-                  </label>
-                </div>
-                <div className="form-group type-group">
-                  <label>
-                    Type :<br />
-                    <input
-                      type="text"
-                      name="type"
-                      value={formData.type}
-                      onChange={handleFormChange}
-                      required
-                      style={{
-                        width: "100%",
-                        padding: 6,
-                        borderRadius: 4,
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                  </label>
-                </div>
-                <div className="form-group type-group">
-                  <label>
-                    Adresse :<br />
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleFormChange}
-                      required
-                      className="form-input"
-                    />
-                  </label>
-                </div>
-                <div className="form-group type-group">
-                  <label>
-                    Image (URL) :<br />
-                    <input
-                      type="text"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleFormChange}
-                      placeholder="https://..."
-                      className="form-input"
-                    />
-                  </label>
-                </div>
-                <div style={{ marginBottom: 12, display: "flex", gap: 10 }}>
-                  <label>
-                    Coord X :<br />
-                    <input
-                      type="number"
-                      name="coordsX"
-                      value={formData.coordsX}
-                      onChange={handleFormChange}
-                      className="form-input-small"
-                    />
-                  </label>
-                  <label>
-                    Coord Y :<br />
-                    <input
-                      type="number"
-                      name="coordsY"
-                      value={formData.coordsY}
-                      onChange={handleFormChange}
-                      className="form-input-small"
-                    />
-                  </label>
-                </div>
-                {formError && <div className="form-error">{formError}</div>}
-                {formSuccess && (
-                  <div className="form-success">{formSuccess}</div>
-                )}
-                <div
-                  className="form-group-inline"
-                  style={{ justifyContent: "center", display: "flex" }}
-                >
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    className="user-btn user-btn-success"
-                  >
-                    {formLoading ? "⏳ Création..." : "✅ Créer"}
-                  </button>
-                  <button
-                    type="button"
-                    className="user-btn user-btn-cancel"
-                    onClick={() => setShowForm(false)}
-                  >
-                    ❎ Annuler
-                  </button>
-                </div>
-              </form>
-            </div>
+  <EntityForm
+    houseId={houseId}
+    onCreated={() => {
+      if (typeof fetchAndConvertBuilding === "function") fetchAndConvertBuilding();
+      setShowForm(false);
+    }}
+    onCancel={() => setShowForm(false)}
+  />
+</div>
           )}
           {/* Onglet de recherche */}
           <div

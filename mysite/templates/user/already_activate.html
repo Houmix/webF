@@ -2,26 +2,26 @@
 {% load static %}
 
 <!-- Titre de la page-->
-{% block title %} Compte déjà activé - SmartCity {% endblock %}
+{% block title %} Account Already Activated - SmartCity {% endblock %}
 <!-- Main Content -->
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Compte déjà activé</h2>
-        <p class="auth-subtitle">Votre compte a déjà été activé avec succès</p>
+        <h2>Account Already Activated</h2>
+        <p class="auth-subtitle">Your account has already been successfully activated</p>
 
         <div style="text-align: center; margin: 2rem 0;">
             <span class="material-icons-round" style="font-size: 4rem; color: var(--success);">check_circle</span>
         </div>
 
         <p style="text-align: center; margin-bottom: 2rem;">
-            Merci d’avoir activé votre compte. Vous pouvez maintenant vous connecter et commencer à utiliser SmartCity.
+            Thank you for activating your account. You can now log in and start using SmartCity.
         </p>
 
-        <a href="{% url 'Login' %}" class="auth-button" style="text-align: center; text-decoration: none;">Aller à la connexion</a>
+        <a href="{% url 'Login' %}" class="auth-button" style="text-align: center; text-decoration: none;">Go to Login</a>
 
         <p class="auth-footer">
-            <a href="{% url 'Home' %}">Retour à l’accueil</a>
+            <a href="{% url 'Forgot_Password' %}">Back to Home</a>
         </p>
     </div>
 </div>
