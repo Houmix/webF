@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} Acceuil - Dashboard {% endblock %}
+{% block title %} Acceuil - Tableau de bord {% endblock %}
 
 
 {% block content %}
 <!-- Main Content -->
 <div class="hero-content">
-    <h2>Mon Dashboard</h2>
+    <h2>Mon tableau de bord</h2>
     <div class="home-select">
         <form method="get">
             <label for="house_id">Choisissez une maison :</label>
-            <select name="house_id" id="house_id" onchange="this.form.submit()">
+            <select name="house_id" id="house_id" class="dashboard-select" onchange="this.form.submit()">
                 <option value="">-- Sélectionnez une maison --</option>
                 {% for house in houses %}
                 <option value="{{ house.id }}" {% if house.id == selected_house.id %}selected{% endif %}>
@@ -25,126 +25,36 @@
 
     <div class="selected-house">
         {% if selected_house %}
-            <h2 class="house-title">{{ selected_house.name }}</h2>
-    
-            {% if profile %}
-                {% if profile.access %}
-                    
-                    {% if profile.isOwner or profile.role == "admin" %}
-                        <h3>Demandes en attente :</h3>
-                        <ul>
-                            {% for p in selected_house.profile_set.all %}
-                                {% if not p.access %}
-                                    <li>
-                                        {{ p.user.username }}
-                                        <form action="{% url 'AcceptAccess' selected_house.id p.user.id %}" method="post" style="display:inline;">
-                                            {% csrf_token %}
-                                            <button type="submit">Accepter</button>
-                                        </form>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <!-- Bouton pour générer le rapport global -->
-                    <a href="{% url 'generate_global_pdf' selected_house.id %}" class="btn btn-primary">📄 Télécharger le rapport global PDF</a>
+        <h2 class="house-title">{{ selected_house.name }}</h2>
+        {% if profile %}
+        {% if profile.access %}
+        <h3>Entités</h3>
+        <ul>
+            {% for entity in entities %}
+            <li>{{ entity.type }} - {% if entity.on %}✅{% else %}❌{% endif %}</li>
+            {% endfor %}
+        </ul>
 
-                    <h3>Entités</h3>
-                    <ul>
-                        {% for entity in entities %}
-                            <div>
-                                <p>{{ entity.name }}</p>
-                                <a href="{% url 'generate_entity_pdf' entity.id %}" class="btn btn-primary">Générer PDF</a>
-                            </div>
-                        {% endfor %}
-
-                        
-
-                    </ul>
-    
-                    <h3>Graphiques de consommation</h3>
-    
-                    <!-- Global -->
-                    <canvas id="globalChart" width="600" height="300"></canvas>
-    
-                    <!-- Par entité -->
-                    {% for entity, records in flux_history.items %}
-                        <h4>{{ entity }}</h4>
-                        <canvas id="chart_{{ forloop.counter }}" width="600" height="300"></canvas>
-                    {% endfor %}
-    
-                    <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        // Graphe global
-                        const globalCtx = document.getElementById("globalChart").getContext("2d");
-                        new Chart(globalCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: {{ global_flux_labels|safe }},
-                                datasets: [{
-                                    label: "Consommation totale",
-                                    data: {{ global_flux_values|safe }},
-                                    backgroundColor: "rgba(54, 162, 235, 0.6)"
-                                }]
-                            }
-                        });
-    
-                        // Graphes par entité
-                        {% for entity, data in flux_history_graph_data.items %}
-                        const ctx{{ forloop.counter }} = document.getElementById("chart_{{ forloop.counter }}").getContext("2d");
-                        new Chart(ctx{{ forloop.counter }}, {
-                            type: 'bar',
-                            data: {
-                                labels: {{ data.labels|safe }},
-                                datasets: [{
-                                    label: "Consommation - {{ entity }}",
-                                    data: {{ data.values|safe }},
-                                    backgroundColor: "rgba(75, 192, 192, 0.5)"
-                                }]
-                            }
-                        });
-                        {% endfor %}
-                    });
-                    </script>
-                    <h3>Historique d'utilisation réelle</h3>
-
-                    {% for entity, data in real_history_graph_data.items %}
-                        <h4>{{ entity }}</h4>
-                        <canvas id="real_chart_{{ forloop.counter }}" width="600" height="300"></canvas>
-                    {% endfor %}
-                    
-                    <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        // Historique réel par entité
-                        {% for entity, data in real_history_graph_data.items %}
-                        const realCtx{{ forloop.counter }} = document.getElementById("real_chart_{{ forloop.counter }}").getContext("2d");
-                        new Chart(realCtx{{ forloop.counter }}, {
-                            type: 'line',
-                            data: {
-                                labels: {{ data.labels|safe }},
-                                datasets: [{
-                                    label: "Historique - {{ entity }}",
-                                    data: {{ data.values|safe }},
-                                    borderColor: "rgba(255, 99, 132, 1)",
-                                    fill: false
-                                }]
-                            }
-                        });
-                        {% endfor %}
-                    });
-                    </script>
-    
-                {% else %}
-                    <p>⛔ Vous n'avez pas accès à cette maison.</p>
-                {% endif %}
-    
-            {% else %}
-                <p>Vous n'avez aucun profil pour cette maison.</p>
-                <form method="post" action="{% url 'RequestAccess' selected_house.id %}">
-                    {% csrf_token %}
-                    <button class="auth-button">Demander l'accès</button>
-                </form>
-            {% endif %}
+        <h3>Flux</h3>
+        <ul>
+            {% for flux_type, values in flux_summary.items %}
+            <li>{{ flux_type }} : {{ values|join:", " }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>⛔ Vous n'avez pas accès à cette maison.</p>
+        <form method="post" action="{% url 'RequestAccess' selected_house.id %}">
+            {% csrf_token %}
+            <button class="auth-button">Demander l'accès</button>
+        </form>
+        {% endif %}
+        {% else %}
+        <p>Vous n'avez aucun profil pour cette maison.</p>
+        <form method="post" action="{% url 'RequestAccess' selected_house.id %}">
+            {% csrf_token %}
+            <button class="auth-button">Demander l'accès</button>
+        </form>
+        {% endif %}
         {% endif %}
     </div>
     
