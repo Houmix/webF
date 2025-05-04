@@ -31,10 +31,10 @@ class FluxStat(models.Model):
         return f"{self.entity.name} {self.entity.house.name} {self.flux_type}"
     @property
     def effective_value(self):
-        return self.value if self.entity.on else "0"
+        return self.value if self.entity.active else "0"
     def update_flux_value(self):
         """Met à jour la consommation du flux et met à jour display_value + historique."""
-        if self.entity.on:
+        if self.entity.active:
             # L'entité est active → la consommation réelle s'affiche
             self.display_value = self.value
         else:
