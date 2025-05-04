@@ -8,6 +8,7 @@
 
 <div class="hero-content">
     <h2>Profil public</h2>
+    <p class="hero-description">Vous êtes sur le profil de {{user.username}}.</p>
     
     <div class="profile-section">
         {% if photo_url %}
@@ -16,7 +17,7 @@
             <img src="{{ photo_url }}" alt="Photo de profil" style="width:150px;"> 
         </div>
         {% endif %}
-        <h3>Profil de {{ username }}</h3>
+        <h3>Vos Profils Publics</h3>
         <div class="profile-item">
             <strong>Pseudonyme :</strong> 
             <p>{{ username }}</p>

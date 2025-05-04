@@ -150,7 +150,7 @@ main>.hero-content {
 
 /* Header Styles */
 header {
-    padding: 1rem 0;
+    padding: 1.5rem 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -165,7 +165,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 2rem;
+    padding: 1rem 2rem;
     /* background: rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2); */
 }
@@ -214,23 +214,10 @@ header h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.auth-footer .auth-button {
-    background: transparent;
-    color: #fff;
-    border: 1.5px solid #fff;
-    box-shadow: none;
-}
-
-.auth-footer .auth-button:hover {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border-color: #fff;
-}
-
 /* Hero Section Styles */
 .hero-content {
-    max-width: 100%;
-    margin: 0 1rem;
+    max-width: 48rem;
+    margin: 0 auto;
     padding: 0 1rem;
     text-align: center;
 }
@@ -315,28 +302,27 @@ header h1 {
 }
 
 /* Features Styles */
-
 .features {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    justify-content: center;
     gap: 2rem;
-    width: 100%;
-    max-width: 100%;
-    margin: 2rem 0;
-    padding: 1rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    max-width: 2000px;
 }
 
 .feature {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin: 0;
+    flex: 1;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 3rem;
 }
 
 .feature:hover {
@@ -362,14 +348,6 @@ header h1 {
     font-weight: 400;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.8);
-}
-
-.news-item {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: rgba(255,255,255,0.07);
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 /* Pagination */
@@ -610,42 +588,6 @@ footer p {
 
 .input-group input:focus {
     outline: none;
-    border-color: white;
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.input-group select {
-    width: 100%;
-    padding: 1rem 1.25rem 1rem 3.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 1rem;
-    color: white;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    outline: none;
-    margin: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 1.25rem center;
-    background-size: 1.5rem 1.5rem;
-    padding-right: 3rem;
-}
-
-.input-group select:focus {
-    border-color: white;
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.input-group select option {
-    background: #222;
-    color: #fff;
-}
-
-.input-group select:focus {
     border-color: white;
     background: rgba(255, 255, 255, 0.15);
 }
@@ -933,44 +875,25 @@ footer p {
 .full-page-menu {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100vw;
+    left: -100%;
+    width: 100%;
     height: 100vh;
+    background: white;
     z-index: 1000;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: row;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+    transition: left 0.3s ease;
 }
 
 .full-page-menu.active {
-    opacity: 1;
-    pointer-events: auto;
+    left: 0;
 }
 
 .menu-content {
-    width: 100vw;
-    max-width: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
-    background: white;
-    height: 100vh;
-    box-sizing: border-box;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    /* Animation du panneau */
-    transform: translateX(-100%);
-    transition: transform 0.4s cubic-bezier(.77,0,.18,1);
-}
-
-.full-page-menu.active .menu-content {
-    transform: translateX(0);
-}
-
-.menu-content::-webkit-scrollbar {
-    display: none;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .close-menu {
@@ -1058,18 +981,8 @@ footer p {
     display: none;
 }
 
-.home-search-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
 /* Responsive Styles */
 @media (min-width: 768px) {
-    .mobile-only {
-        display: none;
-    }
 
     .desktop-only {
         display: flex;
@@ -1086,26 +999,9 @@ footer p {
     .search-group {
         flex-direction: row;
     }
-
-    .home-search-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .menu-content {
-        width: 25vw;
-        max-width: 500px;
-        min-width: 250px;
-        border-right: 1px solid #eee;
-        box-shadow: 2px 0 8px rgba(0,0,0,0.04);
-    }
 }
 
 @media (max-width: 768px) {
-
-    .desktop-only {
-        display: none;
-    }
-
     .mobile-only {
         display: flex;
         position: fixed;
@@ -1163,7 +1059,6 @@ footer p {
         text-align: center;
         margin: 0 auto;
     }
-    
 }
 
 /* Submenu Styles */
@@ -1219,44 +1114,15 @@ footer p {
 
 /* House Style */
 
-.selected-house > * {
-    color: #fff !important;
-    border-color: #fff !important;
-    background: transparent !important;
-}
-
-.selected-house select,
-.selected-house option,
-.selected-house input,
-.selected-house button {
-    background: #222 !important;
-    color: #fff !important;
-    border: 1px solid #fff !important;
-}
-
-.selected-house canvas,
-canvas {
-    background: transparent !important;
-}
-
-/* Pour les liens en hover */
-.selected-house a:hover, .btn:hover, .btn-primary:hover, .auth-button:hover {
-    color: #fff !important;
-    border-color: #fff !important;
-    background: rgba(255,255,255,0.1) !important;
-    text-decoration: underline;
-}
-
-.selected-house {
+.selected-house{
     flex: 1;
-    width: 60vw;
-    max-width: 1400px;
-    margin: 4rem auto 0 auto;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 2.5rem 2rem;
+    padding: 2rem;
+    margin-top: 10%;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     backdrop-filter: blur(10px);
@@ -1304,82 +1170,4 @@ canvas {
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: 2rem;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.selected-house canvas {
-    margin-bottom: 2.5rem;
-    margin-top: 0.5rem;
-    display: block;
-    max-width: 100%;
-}
-
-.selected-house h4 {
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.small-pdf-btn {
-    width: auto !important;
-    min-width: 0;
-    padding: 0.5rem 1.25rem;
-    font-size: 1rem;
-    margin-top: 0;
-    margin-bottom: 0;
-    border-radius: 0.5rem;
-    display: inline-block;
-}
-
-.entity-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-}
-
-.entity-block h4 {
-    margin-bottom: 0.5rem;
-    margin-top: 0;
-    width: 100%;
-    text-align: center;
-}
-
-.entity-block .auth-button {
-    margin: 0 auto;
-    width: fit-content;
-}
-
-.dashboard-select {
-    width: 100%;
-    padding: 0.75rem 1.25rem;
-    border-radius: 0.75rem;
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid #fff;
-    color: #fff;
-    font-size: 1.1rem;
-    font-family: inherit;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    outline: none;
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 1.25rem center;
-    background-size: 1.5rem 1.5rem;
-    padding-right: 3rem;
-}
-
-.dashboard-select:focus {
-    border-color: #fff;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.1);
-}
-
-.dashboard-select option {
-    background: gray;
-    color: #fff;
 }

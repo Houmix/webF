@@ -1,5 +1,5 @@
 from django.urls import path, include
-from user.views import login, signUp,public_profile, myspace, modify_profil, logout, activate_account, forgot_password, reset_password,change_password,request_access,dashboard_view,accept_access,generate_entity_pdf,generate_global_pdf,suppression,respond_incident,suppressionEntity
+from user.views import login, signUp,public_profile, myspace, modify_profil, logout, activate_account, forgot_password, reset_password,change_password,request_access,dashboard_view,accept_access,generate_entity_pdf,generate_global_pdf
 
 urlpatterns = [
     path('login/', login, name="Login"),
@@ -17,9 +17,6 @@ urlpatterns = [
     path('accept-access/<int:house_id>/<int:user_id>/', accept_access, name='AcceptAccess'),
     path('generate_pdf/entity/<int:entity_id>/', generate_entity_pdf, name='generate_entity_pdf'),
     path('generate_pdf/global_report/<int:house_id>/', generate_global_pdf, name='generate_global_pdf'),
-    path('request_suppresion/<int:request_id>/<int:choice>/', suppression, name='RequestSuppression'),
-    path('incident/<int:incident_id>/respond/', respond_incident, name='RespondIncident'),
-    path('request_suppresion_entity/<int:request_id>/<int:choice>/', suppressionEntity, name='RequestSuppressionObject'),
 
 
 
