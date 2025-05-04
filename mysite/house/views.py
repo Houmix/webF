@@ -173,3 +173,75 @@ class ProfileAPIView(APIView):
             return Response({"detail": "Suppression effectuée"}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"detail": f"Erreur lors de la suppression: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+"""
+    def get(self, request, user_id):
+   
+        #GET: Récupérer la maison d'un utilisateur
+
+        house = House.objects.filter(profile__user__id=user_id)
+        serializer = HouseSerializer(house)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, user_id):
+       
+        #PUT: Mettre à jour la maison d'un utilisateur
+     
+        house = House.objects.filter(profile__user__id=user_id)
+        serializer = HouseSerializer(house, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, user_id):
+      
+        #DELETE: Supprimer la maison d'un utilisateur
+    
+        house = House.objects.filter(profile__user__id=user_id)
+        house.delete()
+        return Response({"message": "House deleted."}, status=status.HTTP_204_NO_CONTENT)
+    
+
+class EntityDetailAPIView(APIView):
+    def get(self, request, user_id):
+   
+        #GET: Récupérer une entité liée à un utilisateur spécifique
+
+        entity = get_object_or_404(Entity, house__profile__user__id=user_id)
+
+        serializer = EntitySerializer(entity)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, user_id):
+      
+        #POST: Créer une entité pour un utilisateur
+   
+        data = request.data.copy()
+        user = get_object_or_404(User, id=user_id)
+        data['user'] = user.id
+        serializer = EntitySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(house=user.house)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, user_id):
+        
+        #PUT: Modifier une entité d'un utilisateur
+        
+        entity = get_object_or_404(Entity, house__profile__user__id=user_id)
+
+        serializer = EntitySerializer(entity, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, user_id):
+     
+        #DELETE: Supprimer une entité d'un utilisateur
+        
+        entity = get_object_or_404(Entity, house__profile__user__id=user_id)
+
+        entity.delete()
+        return Response({"message": "Entity deleted."}, status=status.HTTP_204_NO_CONTENT)"""

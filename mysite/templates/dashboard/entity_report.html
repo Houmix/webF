@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; }
+        h2, h3, h4 { margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Rapport pour l'entité : {{ entity.name }}</h2>
+
+    <h3>Consommation par type de flux</h3>
+    <table>
+        <tr>
+            <th>Type de flux</th>
+            <th>Valeur totale</th>
+        </tr>
+        {% for label, value in flux_history_graph_data.items %}
+        <tr>
+            <td>{{ label }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Historique réel de consommation</h3>
+    <table>
+        <tr>
+            <th>Horodatage</th>
+            <th>Type de flux</th>
+            <th>Valeur</th>
+        </tr>
+        {% for row in real_history_graph_data.items %}
+        <tr>
+            <td>{{ row.timestamp }}</td>
+            <td>{{ row.flux_type }}</td>
+            <td>{{ row.value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

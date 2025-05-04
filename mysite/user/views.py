@@ -17,9 +17,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.auth import update_session_auth_hash
 from forms import PasswordChangeForm
-from house.models import House,Entity
+from house.models import House,Entity,EntityHistory
 from user.models import Profile
-from log.models import FluxStat
+from log.models import FluxStat,FluxStatHistory
 
 def login(request):
     form = LoginForm()
@@ -179,7 +179,8 @@ def request_access(request, house_id):
     return redirect('Home') 
 
 
-
+# Données pour les courbes (extraites de FluxStat)
+from collections import defaultdict
 @login_required
 def dashboard_view(request):
     user = request.user
@@ -192,19 +193,194 @@ def dashboard_view(request):
     entities = Entity.objects.filter(house=selected_house) if profile and profile.access else []
     flux_stats = FluxStat.objects.filter(entity__house=selected_house) if profile and profile.access else []
 
-    flux_summary = {}
+    # Résumé simple pour affichage brut (texte)
+    flux_summary = defaultdict(list)
     for stat in flux_stats:
-        flux_summary.setdefault(stat.flux_type, []).append(stat.value)
+        flux_summary[stat.flux_type].append(stat.display_value)
 
+    # Historique des flux par entité pour les graphiques
+    flux_history = defaultdict(list)
+    for stat in flux_stats:
+        flux_history[stat.entity.name].append({
+            'flux_type': stat.flux_type,
+            'value': float(stat.display_value),
+        })
+
+    # Préparer les données pour le graphique global
+    global_flux = defaultdict(float)
+    for stat in flux_stats:
+        global_flux[stat.flux_type] += float(stat.display_value)
+
+    global_flux_labels = list(global_flux.keys())
+    global_flux_values = list(global_flux.values())
+    # À ajouter dans dashboard_view (juste avant le return)
+
+    flux_history_graph_data = {}
+    for entity_name, records in flux_history.items():
+        labels = [r['flux_type'] for r in records]
+        values = [r['value'] for r in records]
+        flux_history_graph_data[entity_name] = {
+            'labels': labels,
+            'values': values,
+        }
+        # Historique détaillé des consommations
+    flux_real_history = defaultdict(list)
+
+    if profile and profile.access:
+        for entity in entities:
+            history_entries = FluxStatHistory.objects.filter(entity=entity).order_by('timestamp')
+            for entry in history_entries:
+                flux_real_history[entity.name].append({
+                    'timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M'),
+                    'flux_type': entry.flux_type,
+                    'value': float(entry.value),
+                })
+
+        # Préparer les données pour les graphiques d’historique réel
+        real_history_graph_data = {}
+        for entity_name, records in flux_real_history.items():
+            labels = [r['timestamp'] for r in records]
+            values = [r['value'] for r in records]
+            real_history_graph_data[entity_name] = {
+                'labels': labels,
+                'values': values,
+            }
+    else:
+        real_history_graph_data = {}
     return render(request, 'dashboard/dashboard.html', {
         'houses': houses,
         'selected_house': selected_house,
         'profile': profile,
         'entities': entities,
-        'flux_summary': flux_summary,
+        'flux_summary': dict(flux_summary),
+        'flux_history': dict(flux_history),
+        'global_flux_labels': global_flux_labels,
+        'global_flux_values': global_flux_values,
+        'flux_history_graph_data': flux_history_graph_data,
+        'real_history_graph_data': real_history_graph_data,
     })
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="rapport.pdf"'
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Erreur lors de la génération du PDF')
+    return response
 
+def generate_entity_pdf(request, entity_id):
+    # Récupérer l'entité spécifiée
+    entity = Entity.objects.get(id=entity_id)
+    user = request.user
+    house = entity.house
+    profile = Profile.objects.filter(user=user, house=house).first()
+
+    if profile and profile.access:
+        # Récupérer les statistiques de flux liées à l'entité
+        flux_stats = FluxStat.objects.filter(entity=entity)
+        flux_history = defaultdict(list)
+
+        for stat in flux_stats:
+            flux_history[stat.flux_type].append(stat.display_value)
+
+        # Historique détaillé des consommations
+        flux_real_history = defaultdict(list)
+        history_entries = FluxStatHistory.objects.filter(entity=entity).order_by('timestamp')
+        for entry in history_entries:
+            flux_real_history[entry.flux_type].append({
+                'timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M'),
+                'value': float(entry.value),
+            })
+
+        # Préparer les données pour les graphiques
+        flux_history_graph_data = {
+            'labels': list(flux_history.keys()),
+            'values': [sum([float(val) for val in flux_history[key]]) for key in flux_history]
+        }
+
+        real_history_graph_data = {
+            'labels': list(flux_real_history.keys()),
+            'values': [sum([float(record['value']) for record in flux_real_history[key]]) for key in flux_real_history]
+        }
+
+        context = {
+            'entity': entity,
+            'flux_history_graph_data': flux_history_graph_data,
+            'real_history_graph_data': real_history_graph_data,
+        }
+
+        return render_to_pdf('dashboard/entity_report.html', context)
+    else:
+        return HttpResponse('Accès refusé à cette entité.')
+def generate_global_pdf(request, house_id):
+    user = request.user
+    selected_house = get_object_or_404(House, id=house_id)
+    profile = Profile.objects.filter(user=user, house=selected_house).first()
+
+    if not profile or not profile.access:
+        return HttpResponse("⛔ Vous n'avez pas accès à cette maison", status=403)
+
+    entities = Entity.objects.filter(house=selected_house)
+    flux_stats = FluxStat.objects.filter(entity__house=selected_house)
+
+    # Données globales
+    global_flux_dict = defaultdict(float)
+    for stat in flux_stats:
+        global_flux_dict[stat.flux_type] += float(stat.display_value)
+
+    # Format pour le template
+    global_flux = [{'label': label, 'value': value} for label, value in global_flux_dict.items()]
+
+    # Données par entité
+    flux_history_graph_data = {}
+    for entity in entities:
+        entity_stats = FluxStat.objects.filter(entity=entity)
+        flux_data = [{'label': stat.flux_type, 'value': float(stat.display_value)} for stat in entity_stats]
+        flux_history_graph_data[entity.name] = flux_data
+
+    # Historique réel
+    real_history_graph_data = {}
+    for entity in entities:
+        entries = FluxStatHistory.objects.filter(entity=entity).order_by('timestamp')
+        history = [{
+            'timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M'),
+            'flux_type': entry.flux_type,
+            'value': float(entry.value)
+        } for entry in entries]
+        real_history_graph_data[entity.name] = history
+
+    pdf = render_to_pdf("dashboard/global_report.html", {
+        'selected_house': selected_house,
+        'profile': profile,
+        'entities': entities,
+        'global_flux': global_flux,
+        'flux_history_graph_data': flux_history_graph_data,
+        'real_history_graph_data': real_history_graph_data,
+    })
+    return pdf
+@login_required
+def accept_access(request, house_id, user_id):
+    # Seuls les propriétaires ou admins devraient pouvoir accepter
+    current_profile = Profile.objects.filter(user=request.user, house__id=house_id, access=True).first()
+    if not current_profile or not current_profile.isOwner:
+        messages.error(request, "Vous n'avez pas la permission d'accepter des demandes.")
+        return redirect('Dashboard')
+
+    profile_to_update = get_object_or_404(Profile, user__id=user_id, house__id=house_id)
+
+    if profile_to_update.access:
+        messages.info(request, "L'utilisateur a déjà accès.")
+    else:
+        profile_to_update.access = True
+        profile_to_update.save()
+        messages.success(request, "Accès accordé à l'utilisateur.")
+
+    return redirect('Dashboard')  # Ou vers la page appropriée
 #####################Non utilisé
 @login_required(login_url='Login')
 def modify_profil(request):

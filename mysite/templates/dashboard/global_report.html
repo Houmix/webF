@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; }
+        h2, h3, h4 { margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    {% if selected_house %}
+        <h2>Maison : {{ selected_house.name }}</h2>
+
+        {% if profile %}
+            <p>Profil : {{ profile.user.username }} ({{ profile.role }})</p>
+
+            {% if profile.isOwner or profile.role == "admin" %}
+                <h3>Demandes en attente</h3>
+                <ul>
+                    {% for p in selected_house.profile_set.all %}
+                        {% if not p.access %}
+                            <li>{{ p.user.username }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <h3>Entités</h3>
+            <ul>
+                {% for entity in entities %}
+                    <li>{{ entity.name }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Consommation globale</h3>
+            <table>
+                <tr>
+                    <th>Type de flux</th>
+                    <th>Valeur totale</th>
+                </tr>
+                {% for item in global_flux %}
+                <tr>
+                    <td>{{ item.label }}</td>
+                    <td>{{ item.value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h3>Consommation par entité</h3>
+            {% for entity, data in flux_history_graph_data.items %}
+                <h4>{{ entity }}</h4>
+                <table>
+                    <tr>
+                        <th>Type de flux</th>
+                        <th>Valeur</th>
+                    </tr>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item.label }}</td>
+                        <td>{{ item.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endfor %}
+
+            <h3>Historique réel</h3>
+            {% for entity, records in real_history_graph_data.items %}
+                <h4>{{ entity }}</h4>
+                <table>
+                    <tr>
+                        <th>Horodatage</th>
+                        <th>Type de flux</th>
+                        <th>Valeur</th>
+                    </tr>
+                    {% for row in records %}
+                    <tr>
+                        <td>{{ row.timestamp }}</td>
+                        <td>{{ row.flux_type }}</td>
+                        <td>{{ row.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endfor %}
+        {% else %}
+            <p>Vous n'avez pas de profil pour cette maison.</p>
+        {% endif %}
+    {% else %}
+        <p>Aucune maison sélectionnée.</p>
+    {% endif %}
+</body>
+</html>
