@@ -47,6 +47,32 @@ console.log("userId", userId);
 React.useEffect(() => {
   if (!houseId || !userId) return;
   
+    // utilisez directement 'api' ici, il est déjà accessible
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Récupère les champs du formulaire
+    // (adapte selon tes inputs : name, type, photo, active, x, y, etc.)
+    const entityData = {
+      name,
+      type,
+      photo,
+      active,
+      x,
+      y,
+      // Ajoute d'autres champs si besoin
+    };
+  
+    try {
+      // Envoie la requête POST à l’API
+      await api.post(`/house/entity/${houseId}/`, entityData);
+      // Optionnel : callback de succès, reset form, fermer popup, etc.
+      if (onCreated) onCreated();
+    } catch (error) {
+      alert("Erreur lors de la création de l'entité");
+    }
+  };
+
+
   const fetchAndConvertBuilding = async () => {
     try {
       const res = await api.get(`http://localhost:8000/house/houseDetails/${userId}/${houseId}/`);
