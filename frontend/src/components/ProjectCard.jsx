@@ -4,6 +4,7 @@ import { Rect, Text, Group, Image, Line, Circle } from "react-konva";
 import useImage from "use-image";
 // Ajout du header et de la barre de côté pour ProjectCard
 import ProjectForm from "./ProjectForm";
+import ProjectEditPopup from "./ProjectEditPopup";
 
 // SVG paysage par défaut
 const DefaultLandscape = ({ x, y, width, height }) => (
@@ -53,6 +54,8 @@ export default function ProjectCard({
   forceDrawLineRerender,
   onPositionChange,
 }) {
+  // Récupère api depuis le contexte global
+  const { api } = useData();
   // HEADER ET SIDEBAR (UI MODERNE)
   // Affichage du header (bannière centrée)
   // Affichage d'une barre latérale à gauche pour le formulaire (placeholder ici)
@@ -72,9 +75,11 @@ export default function ProjectCard({
   }, [initialData]);
   // Style harmonisé avec BuildingCard
   const cardWidth = 150;
-  const cardHeight = 200;
+  const cardHeight = 150;
   const contentPadding = 10;
   const [data, setData] = useState(initialData);
+  // State pour la popup d'édition
+  const [editPopupVisible, setEditPopupVisible] = useState(false);
 
   // Calcul du flux électrique net (entrant - sortant)
   // Entrant : tous les links dont targetId === data.id et type === 'electricity'
@@ -104,9 +109,9 @@ export default function ProjectCard({
       });
     }
   });
-  const netElectricity = electricityIn - electricityOut;
+  
 
-  const [image] = useImage(data.image || "");
+  const [image] = useImage("http://127.0.0.1:8000/" + data.photo || "");
   const [menu, setMenu] = useState({ visible: false, x: 0, y: 0 });
   const [participantsPopup, setParticipantsPopup] = useState({
     visible: false,
@@ -133,24 +138,6 @@ export default function ProjectCard({
     return () => clearInterval(anim);
   }, []);
 
-  // Utilitaires
-  const flux = data.fluxStats || {};
-  // Participants
-  const people = data.peopleInIt || [];
-
-  // Couleurs utilités (comme BuildingCard)
-  const getUtilityColor = (type) => {
-    switch (type) {
-      case "electricity":
-        return "#FFD700";
-      case "water":
-        return "#4682B4";
-      case "internet":
-        return "#32CD32";
-      default:
-        return "#CCCCCC";
-    }
-  };
 
   // Gère le clic droit pour afficher le menu contextuel
   const handleContextMenu = (e) => {
@@ -180,7 +167,16 @@ export default function ProjectCard({
   // Actions menu
   const handleEdit = () => {
     setMenu({ ...menu, visible: false });
-    if (onEdit) onEdit(data);
+    setEditPopupVisible(true);
+  };
+
+  const handleEditPopupClose = () => {
+    setEditPopupVisible(false);
+  };
+  const handleEditPopupSave = (newData) => {
+    setEditPopupVisible(false);
+    setData(newData);
+    if (onEdit) onEdit(newData);
   };
   
   const handleDelete = async () => {
@@ -189,7 +185,8 @@ export default function ProjectCard({
     setShowConfirm(false);
     setTooltip({ visible: false, text: "", x: 0, y: 0 });
     try {
-      await deleteEntity(data.id);
+      // Suppression via l'endpoint requis
+      await api.delete(`house/houseDetails/${localStorage.getItem("api_session_userId")}/${data.id}`);
       if (onDelete) onDelete(data.id);
     } catch (error) {
       alert(error.message);
@@ -199,60 +196,12 @@ export default function ProjectCard({
 
   // Ajout du drag comme dans BuildingCard
   const [dragPos, setDragPos] = useState(position);
-  const [isDragging, setIsDragging] = useState(false);
-
-  React.useEffect(() => {
-    setDragPos(position);
-  }, [position.x, position.y]);
-
-  const handleDragStart = (e) => {
-    e.evt.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragMove = (e) => {
-    e.evt.stopPropagation();
-    const newPosition = {
-      x: e.target.x(),
-      y: e.target.y(),
-    };
-    setDragPos(newPosition);
-    // Notifier le parent en temps réel si besoin
-    if (typeof onPositionChange === "function") {
-      onPositionChange({
-        ...data,
-        coords: newPosition,
-        realTimePosition: newPosition,
-      });
-    }
-    // Forcer le rerender de DrawLine
-    if (typeof forceDrawLineRerender === "function") {
-      forceDrawLineRerender();
-    }
-  };
-
-  const handleDragEnd = (e) => {
-    e.evt.stopPropagation();
-    setIsDragging(false);
-    const newPosition = {
-      x: e.target.x(),
-      y: e.target.y(),
-    };
-    setDragPos(newPosition);
-    // Notifier le parent du changement final
-    if (typeof onPositionChange === "function") {
-      onPositionChange({ ...data, coords: newPosition });
-    }
-  };
+ 
 
   return (
     <Group
-      x={dragPos.x}
-      y={dragPos.y}
-      draggable
-      onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
-      onDragEnd={handleDragEnd}
+      x={dragPos.x+30}
+      y={dragPos.y+30}
       opacity={fade}
       onTap={() => {
         if (typeof onDoubleClick === "function") onDoubleClick(data.id);
@@ -277,9 +226,6 @@ export default function ProjectCard({
         shadowBlur={hovered ? 24 : 10}
         shadowColor={hovered ? "#3da9fc" : "#b3d4fc"}
         cornerRadius={12}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{ cursor: hovered ? "pointer" : "default" }}
       />
       {/* Badge en édition */}
       {editProjectId === data.id && (
@@ -306,7 +252,7 @@ export default function ProjectCard({
       )}
       {/* Titre projet */}
       <Text
-        text={data.infos?.name || "Projet"}
+        text={data.name || "Projet"}
         x={contentPadding}
         y={12}
         fontSize={15}
@@ -320,137 +266,54 @@ export default function ProjectCard({
       {image ? (
         <Image
           image={image}
-          x={cardWidth / 2 - 32}
-          y={38}
-          width={64}
-          height={38}
+          x={cardWidth / 2 - 50}
+          y={35}
+          width={100}
+          height={70}
           cornerRadius={6}
         />
       ) : (
         <Rect
-          x={cardWidth / 2 - 18}
-          y={38}
-          width={36}
-          height={28}
+        x={cardWidth / 2 - 50}
+        y={35}
+        width={100}
+        height={70}
           fill="#e0ffe9"
           cornerRadius={6}
         />
       )}
       {/* Sous-titre */}
       <Text
-        text={data.infos?.type || "Type"}
+        text={data.type || "Type"}
         x={contentPadding}
-        y={80}
+        y={105}
         fontSize={10}
         fill="#5c7a99"
         width={cardWidth - 2 * contentPadding}
         align="center"
       />
-      {/* Statistiques des Utilités */}
+      {/* adresse*/}
       <Text
-        y={95}
+        y={120}
         x={contentPadding}
-        text="Statistiques des Utilités"
+        text={data.address || "Adresse"}
         fontSize={9}
         fontFamily="Arial"
         fontStyle="bold"
         fill="#333333"
         width={cardWidth - 2 * contentPadding}
       />
-      {/* Statistiques d'électricité */}
-      <Group y={108} x={contentPadding}>
-        <Circle radius={4} fill={getUtilityColor("electricity")} />
-        <Text
-          x={10}
-          text="Électricité"
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-        />
-        <Text
-          x={cardWidth - 2 * contentPadding - 19}
-          text={`${flux.electricity?.value ?? ""}`}
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-          align="right"
-        />
-      </Group>
-      {/* Statistiques d'eau */}
-      <Group y={123} x={contentPadding}>
-        <Circle radius={4} fill={getUtilityColor("water")} />
-        <Text
-          x={10}
-          text="Eau"
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-        />
-        <Text
-          x={cardWidth - 2 * contentPadding - 19}
-          text={`${flux.water?.value ?? ""}`}
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-          align="right"
-        />
-      </Group>
-      {/* Statistiques internet */}
-      <Group y={138} x={contentPadding}>
-        <Circle radius={4} fill={getUtilityColor("internet")} />
-        <Text
-          x={10}
-          text="Internet"
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-        />
-        <Text
-          x={cardWidth - 2 * contentPadding - 19}
-          text={`${flux.internet?.value ?? ""}`}
-          fontSize={8}
-          fontFamily="Arial"
-          fill="#333333"
-          align="right"
-        />
-      </Group>
-      {/* Propriétaires/personnes */}
       <Text
-        y={154}
+        y={135}
         x={contentPadding}
-        text="Participants"
+        text={data.city || "Adresse"}
         fontSize={9}
         fontFamily="Arial"
         fontStyle="bold"
         fill="#333333"
         width={cardWidth - 2 * contentPadding}
       />
-      {people.slice(0, 2).map((person, idx) => (
-        <Text
-          key={person.id}
-          x={contentPadding + 8}
-          y={167 + idx * 13}
-          text={`• ${person.name} (${person.role})`}
-          fontSize={8}
-          fill="#5c7a99"
-          width={cardWidth - 2 * contentPadding - 16}
-        />
-      ))}
-      {/* Position et code */}
-      <Text
-        text={`Position: (${Math.round(position.x)}, ${Math.round(position.y)})`}
-        x={contentPadding}
-        y={cardHeight - 24}
-        fontSize={8}
-        fill="#999"
-      />
-      <Text
-        text={data.id || "Code"}
-        x={cardWidth - 56}
-        y={cardHeight - 24}
-        fontSize={8}
-        fill="#999"
-      />
+      
       {/* Menu contextuel personnalisé */}
       {menu.visible && !showConfirm && (
         <Group x={0} y={0} listening={true}>
@@ -553,7 +416,7 @@ export default function ProjectCard({
       )}
       {/* Popup de confirmation suppression */}
       {showConfirm && (
-        <Group x={menu.x} y={menu.y}>
+        <Group x={0} y={0}>
           <Rect
             width={170}
             height={90}

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 function ProjectForm({ onSubmit, onCancel }) {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState(null);
   const [people, setPeople] = useState("");
   const [flux, setFlux] = useState({
     electricity: "",
@@ -12,21 +12,21 @@ function ProjectForm({ onSubmit, onCancel }) {
     internet: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      infos: { name, type },
-      image,
-      peopleInIt: people
-        .split(",")
-        .map((p) => p.trim())
-        .filter(Boolean),
-      fluxStats: {
-        electricity: { value: flux.electricity },
-        water: { value: flux.water },
-        internet: { value: flux.internet },
-      },
-    });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('type', type);
+    formData.append('people', people);
+    if (image) {
+      formData.append('image', image);
+    }
+    formData.append('flux', JSON.stringify({
+      electricity: { value: flux.electricity },
+      water: { value: flux.water },
+      internet: { value: flux.internet },
+    }));
+    onSubmit(formData);
   };
 
   return (
@@ -70,6 +70,12 @@ function ProjectForm({ onSubmit, onCancel }) {
         value={people}
         onChange={(e) => setPeople(e.target.value)}
         placeholder="Participants (séparés par une virgule)"
+        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
+      />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setImage(e.target.files[0])}
         style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
       />
       <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
