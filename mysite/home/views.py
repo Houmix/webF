@@ -9,6 +9,21 @@ from django.conf import settings
 from .models import FAQ,News
 from house.models import House
 
+def house_view(request, house_id):
+    house = House.objects.get(id=house_id)
+
+    entities = house.entities.all()
+    links = []
+    for entity in entities:
+        for link in entity.outgoing_links.all():
+            links.append(link)
+    print(entities)
+    print(links)
+    return render(request, 'house_graph.html', {
+        'entities': entities,
+        'links': links
+    })
+
 def Homepage(request):
     
     # Récupère les FAQ et les News pour tous les utilisateurs

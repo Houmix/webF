@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Visualisation - SmartCity{% endblock %}
+
+{% block content %}
+<h1>Visualisation de la maison</h1>
+
+<!-- Formulaire de création d'entité -->
+<div>
+    <input type="text" id="entityName" placeholder="Nom">
+    <select id="entityType">
+        <option value="electricity">Électricité</option>
+        <option value="water">Eau</option>
+        <option value="internet">Internet</option>
+    </select>
+    <button onclick="createEntity()">Ajouter une entité</button>
+</div>
+
+<div id="graph"></div>
+
+<!-- Charge D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+  let nodes = [
+    {% for e in entities %}
+      { id: {{ e.id }}, name: "{{ e.name }}", type: "{{ e.type }}", img: "{% if e.photo %}{{ e.photo.url }}{% else %}{% static 'default.png' %}{% endif %}" },
+    {% endfor %}
+  ];
+
+  let links = [
+    {% for l in links %}
+      { source: {{ l.source.id }}, target: {{ l.target.id }}, type: "{{ l.type }}" },
+    {% endfor %}
+  ];
+
+  const width = 800, height = 600;
+
+  const svg = d3.select("#graph").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(d => d.id).distance(100))
+    .force("charge", d3.forceManyBody().strength(-200))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+  let linkGroup = svg.append("g").attr("class", "links");
+  let nodeGroup = svg.append("g").attr("class", "nodes");
+
+  function restartSimulation() {
+    svg.selectAll(".links line").remove();
+    svg.selectAll(".nodes g").remove();
+
+    const link = linkGroup.selectAll("line")
+      .data(links)
+      .enter().append("line")
+      .attr("stroke", "#aaa")
+      .attr("stroke-width", 2);
+
+    const node = nodeGroup.selectAll("g")
+      .data(nodes)
+      .enter().append("g")
+      .call(drag(simulation))
+      .on("contextmenu", (event, d) => {
+        event.preventDefault();
+        nodes = nodes.filter(n => n.id !== d.id);
+        links = links.filter(l => l.source !== d.id && l.target !== d.id);
+        restartSimulation();
+      });
+
+    node.append("image")
+      .attr("xlink:href", d => d.img)
+      .attr("width", 40)
+      .attr("height", 40)
+      .attr("x", -20)
+      .attr("y", -20);
+
+    node.append("text")
+      .text(d => d.name)
+      .attr("dy", 35)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "10px");
+
+    simulation
+      .nodes(nodes)
+      .on("tick", () => {
+        link
+          .attr("x1", d => getNode(d.source).x)
+          .attr("y1", d => getNode(d.source).y)
+          .attr("x2", d => getNode(d.target).x)
+          .attr("y2", d => getNode(d.target).y);
+
+        node
+          .attr("transform", d => `translate(${d.x}, ${d.y})`);
+      });
+
+    simulation.force("link").links(links);
+    simulation.alpha(1).restart();
+  }
+
+  function getNode(idOrObj) {
+    if (typeof idOrObj === "object") return idOrObj;
+    return nodes.find(n => n.id === idOrObj);
+  }
+
+  function drag(simulation) {
+    return d3.drag()
+      .on("start", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on("drag", (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on("end", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      });
+  }
+
+  function createEntity() {
+    const name = document.getElementById("entityName").value;
+    const type = document.getElementById("entityType").value;
+
+    const newId = Math.max(...nodes.map(n => n.id)) + 1;
+    const defaultImage = "{% static 'default.png' %}";
+
+    nodes.push({ id: newId, name, type, img: defaultImage });
+    restartSimulation();
+  }
+
+  restartSimulation();
+</script>
+
+<style>
+  #graph {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+  }
+</style>
+{% endblock %}

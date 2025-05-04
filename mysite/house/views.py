@@ -8,9 +8,10 @@ from log.models import Link, FluxStat
 from user.models import User, Profile
 from .serializers import HouseSerializer, EntitySerializer, LinkSerializer, FluxStatSerializer,ProfileSerializer
 from django.shortcuts import get_object_or_404
-
+from rest_framework.permissions import AllowAny
 
 class HouseDetailsAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, user_id, house_id):
         try:
             # Récupérer le profil de l'utilisateur
@@ -32,9 +33,20 @@ class HouseDetailsAPIView(APIView):
 
         except Profile.DoesNotExist:
             return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
+    def put(self,request,user_id,house_id):
+        try :
+            # Récupérer le profil de l'utilisateur
+            profile = Profile.objects.get(user_id=user_id, house__id=house_id)
+            house = profile.house  # Maison associée au profil
+            serializer = HouseSerializer(house, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": f"Erreur lors de la mise à jour: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        
 class PeopleInHouseAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, house_id):
         # Vérifie si la maison existe
         house = get_object_or_404(House, id=house_id)
@@ -63,6 +75,7 @@ class PeopleInHouseAPIView(APIView):
         return Response(occupants, status=status.HTTP_200_OK)
 
 class HousesAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, user_id):
         data = request.data.copy()
         user = get_object_or_404(User, id=user_id)
@@ -90,8 +103,30 @@ class HousesAPIView(APIView):
         # Sérialisation des maisons
         serializer = HouseSerializer(houses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+class DeleteHouseAPIView(APIView):
+    permission_classes = [AllowAny]
+    print('ok')
+    def delete(self, request, house_id):
+        try:
+            house = get_object_or_404(House, id=house_id)
+
+
+            # Supprimer tous les profils liés à cette maison
+            profiles_deleted, _ = Profile.objects.filter(house=house).delete()
+
+            # Supprimer ensuite la maison
+            house.delete()
+
+            return Response(
+                {"detail": f"La maison et ses {profiles_deleted} profils associés ont été supprimés."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class EntityAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, house_id):
         data = request.data.copy()
         # On récupère la maison liée à ce user via Profile
@@ -104,8 +139,8 @@ class EntityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, entity_id):
         entity = get_object_or_404(Entity, id=entity_id)  # Un seul objet, pas queryset
-        previous_state = entity.on  # État avant modification
-        new_state = request.data.get("on")
+        previous_state = entity.active  # État avant modificatiactive
+        new_state = request.data.get("active")
         # Vérifie si le champ "on" a changé
         if new_state is not None and str(previous_state).lower() != str(new_state).lower():
             house = entity.house
@@ -118,11 +153,12 @@ class EntityAPIView(APIView):
         serializer = EntitySerializer(entity, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LinkAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = LinkSerializer(data=request.data)
         if serializer.is_valid():
@@ -131,17 +167,28 @@ class LinkAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileAPIView(APIView):
-    def put(self, request, user_id,house_id):
-        profile = Profile.objects.filter(user = user_id,house = house_id)
-        serializer = ProfileSerializer(profile, data=request.data,partial=True)
+    permission_classes = [AllowAny]
+    def put(self, request, user_id, house_id):
+        profile = get_object_or_404(Profile, user=user_id, house=house_id)  # Get the profile or 404
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, user_id, house_id):
+        profile = get_object_or_404(Profile, user=user_id, house=house_id)  # Get the profile or 404
+        try:
+            profile.delete()
+            return Response({"detail": "Suppression effectuée"}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"detail": f"Erreur lors de la suppression: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 """
     def get(self, request, user_id):
    
-        #GET: Récupérer la maison d’un utilisateur
+        #GET: Récupérer la maison d'un utilisateur
 
         house = House.objects.filter(profile__user__id=user_id)
         serializer = HouseSerializer(house)
@@ -149,7 +196,7 @@ class ProfileAPIView(APIView):
 
     def put(self, request, user_id):
        
-        #PUT: Mettre à jour la maison d’un utilisateur
+        #PUT: Mettre à jour la maison d'un utilisateur
      
         house = House.objects.filter(profile__user__id=user_id)
         serializer = HouseSerializer(house, data=request.data, partial=True)
@@ -160,7 +207,7 @@ class ProfileAPIView(APIView):
 
     def delete(self, request, user_id):
       
-        #DELETE: Supprimer la maison d’un utilisateur
+        #DELETE: Supprimer la maison d'un utilisateur
     
         house = House.objects.filter(profile__user__id=user_id)
         house.delete()
@@ -192,7 +239,7 @@ class EntityDetailAPIView(APIView):
 
     def put(self, request, user_id):
         
-        #PUT: Modifier une entité d’un utilisateur
+        #PUT: Modifier une entité d'un utilisateur
         
         entity = get_object_or_404(Entity, house__profile__user__id=user_id)
 
@@ -204,7 +251,7 @@ class EntityDetailAPIView(APIView):
 
     def delete(self, request, user_id):
      
-        #DELETE: Supprimer une entité d’un utilisateur
+        #DELETE: Supprimer une entité d'un utilisateur
         
         entity = get_object_or_404(Entity, house__profile__user__id=user_id)
 

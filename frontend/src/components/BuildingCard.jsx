@@ -10,6 +10,7 @@ import {
   Group,
   Image,
 } from "react-konva";
+import PopupLinks from "./PopupLinks";
 
 function BuildingCard({
   initialData,
@@ -331,8 +332,9 @@ function BuildingCard({
           fillLinearGradientColorStops={[1, "#00b4d8", 0, "#90e0ef"]}
           cornerRadius={[0, 0, 15, 15]}
         />
+        {/* Nom du bâtiment */}
         <Text
-          text={data.infos.name}
+          text={data.name}
           fontSize={12}
           fontFamily="Arial"
           fontStyle="bold"
@@ -343,7 +345,7 @@ function BuildingCard({
         {/* Adresse du bâtiment */}
         <Text
           y={16}
-          text={data.infos.address}
+          text={data.address}
           fontSize={8}
           fontFamily="Arial"
           fill="#666666"
@@ -360,6 +362,41 @@ function BuildingCard({
           fill="#333333"
           width={cardWidth - 2 * contentPadding}
         />
+
+        {/* Liste des entités */}
+        {data.entities && data.entities.map((entity, idx) => (
+          <Group key={entity.id} y={45 + idx * 25}>
+            {/* Image de l'entité si besoin : <Image src={entity.photo} ... /> */}
+            <Text
+              x={0}
+              text={entity.name + (entity.on ? " (On)" : " (Off)")}
+              fontSize={8}
+              fontFamily="Arial"
+              fill={entity.on ? '#43a047' : '#b71c1c'}
+            />
+            {/* Statistiques de flux pour chaque entité */}
+            {entity.flux_stats && entity.flux_stats.map((stat, i) => (
+              <Text
+                key={i}
+                x={80}
+                text={`${stat.flux_type}: ${stat.value}`}
+                fontSize={7}
+                fill="#666"
+              />
+            ))}
+          </Group>
+        ))}
+
+        {/* Liste des profils utilisateurs */}
+        {data.profiles && data.profiles.map((profile, idx) => (
+          <Text
+            key={profile.user_id}
+            y={140 + idx * 10}
+            text={`${profile.user_name} (lvl ${profile.lvl})`}
+            fontSize={7}
+            fill="#888"
+          />
+        ))}
 
         {/* Statistiques d'électricité */}
         <Group y={45}>
@@ -538,6 +575,7 @@ function BuildingCard({
             }
           />
           {/* Links */}
+          {/* Links */}
           <Text
             text="Links"
             x={0}
@@ -627,3 +665,4 @@ function BuildingCard({
 }
 
 export default BuildingCard;
+
