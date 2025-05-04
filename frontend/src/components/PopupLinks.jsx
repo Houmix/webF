@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useData } from "../DataContext";
 
 /**
  * PopupLinks
@@ -29,12 +30,33 @@ export default function PopupLinks({
 
   if (!visible) return null;
 
-  const handleSubmit = (e) => {
+  const { api } = useData();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const q = parseInt(quantity, 10);
     if (!q || isNaN(q) || q <= 0) return;
-    onValidate(q);
-    setQuantity("");
+    if (!data?.sourceId || !data?.targetId || !data?.linkMode) return;
+
+
+    // Construire l'objet à envoyer
+    // Extraire l'id numérique attendu par l'API
+    const sourceId = parseInt(data.sourceId.replace(/^E/, ""), 10);
+    const targetId = parseInt(data.targetId.replace(/^E/, ""), 10);
+    const linkData = {
+      source: sourceId,
+      target: targetId,
+      type: data.linkMode,
+      value: q
+    };
+
+    try {
+      await api.post("/house/link/", linkData);
+      onValidate(q);
+      setQuantity("");
+    } catch (error) {
+      alert("Erreur lors de la création du lien");
+    }
   };
 
   const colorType = (e) => {

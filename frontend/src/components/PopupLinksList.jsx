@@ -97,11 +97,29 @@ export default function PopupLinksList({
                   padding: "8px 12px",
                   borderBottom: "1px solid #f0f0f0",
                   color: colorType(link.type),
+                  gap: 8
                 }}
               >
                 <span style={{ fontWeight: "bold" }}>{link.id}</span>
                 <span>{link.type}</span>
                 <span>{link.value}</span>
+                <button
+                  type="button"
+                  onClick={() => onDeleteLink && onDeleteLink(link.id)}
+                  style={{
+                    marginLeft: 8,
+                    padding: "4px 12px",
+                    borderRadius: 6,
+                    background: "#e53935",
+                    color: "#fff",
+                    border: "none",
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    cursor: "pointer"
+                  }}
+                >
+                  Supprimer
+                </button>
               </div>
             ))}
           </div>
