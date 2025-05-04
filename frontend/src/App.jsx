@@ -36,81 +36,30 @@ function App() {
   const [panStart, setPanStart] = useState(null);
   const [touchStartPos, setTouchStartPos] = useState(null);
 
-  const [buildings, setBuildings] = React.useState([]);
-const params = new URLSearchParams(window.location.search);
-const houseId = params.get("id");
-const userId = sessionStorage.getItem("userId");
+  const [entities, setEntities] = React.useState([]);
+  const params = new URLSearchParams(window.location.search);
+  const houseId = params.get("id");
+  const userId =sessionStorage.getItem("userId");
 
-React.useEffect(() => {
-  if (!houseId || !userId) return;
-  
-  const fetchAndConvertBuilding = async () => {
-    try {
-      const res = await api.get(`http://localhost:8000/house/houseDetails/${userId}/${houseId}/`);
-      
-      if (res.data) {
-        // Conversion de la réponse API au format attendu
-        const house = res.data;
-        
-        // Créer un ID formaté
-        const formattedId = `E${String(house.id).padStart(3, '0')}`;
-        
-        // Préparer les liens à partir des entités
-        const allLinks = [];
-        
-        // Parcourir toutes les entités pour extraire leurs liens
-        if (house.entities && Array.isArray(house.entities)) {
-          house.entities.forEach(entity => {
-            if (entity.links && Array.isArray(entity.links)) {
-              entity.links.forEach(link => {
-                // Ajouter le lien au format attendu
-                allLinks.push({
-                  id: `L${String(link.id).padStart(3, '0')}`,
-                  targetId: `E${String(link.target).padStart(3, '0')}`,
-                  type: link.type,
-                  value: parseInt(link.value, 10) || 0
-                });
-              });
-            }
-          });
+    React.useEffect(() => {
+      if (!houseId) return;
+      const fetchEntities = async () => {
+        try {
+          const res = await api.get(`http://localhost:8000/house/houseDetails/${userId}/${houseId}/`);
+          setEntities(res.data);
+          console.log('Entités récupérées:', res.data);
+        } catch (error) {
+          setEntities([]);
+          if (error.response) {
+            console.error('Erreur API:', error.response.status, error.response.data);
+          } else {
+            console.error('Erreur réseau:', error.message);
+          }
         }
-        
-        // Construire l'objet building au format attendu
-        const convertedBuilding = {
-          id: formattedId,
-          image: house.photo || "",
-          coords: { 
-            x: house.coordX || 0, 
-            y: house.coordY || 0 
-          },
-          infos: {
-            type: house.type || "HOUSE",
-            name: house.name || "",
-            address: house.address || ""
-          },
-          active: true,
-          links: allLinks
-        };
-        
-        // Mettre à jour l'état avec le bâtiment converti
-        setBuildings([convertedBuilding]);
-        console.log('Building converti:', convertedBuilding);
-      } else {
-        console.error('Format de réponse inattendu:', res.data);
-        setBuildings([]);
-      }
-    } catch (error) {
-      setBuildings([]);
-      if (error.response) {
-        console.error('Erreur API:', error.response.status, error.response.data);
-      } else {
-        console.error('Erreur réseau:', error.message);
-      }
-    }
-  };
-  
-  fetchAndConvertBuilding();
-}, [houseId, userId, api]);
+      };
+      fetchEntities();
+    }, [houseId, userId, api]);
+
 
   // Gestion du drag/pan sur le fond du canevas
   const handleStageMouseDown = (e) => {
@@ -215,8 +164,8 @@ React.useEffect(() => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /*/ État pour stocker toutes les cartes
- const [buildings, setBuildings] = useState([
+  // État pour stocker toutes les cartes
+  const [buildings, setBuildings] = useState([
     {
       id: "E001",
       image: "https://picsum.photos/200/300",
@@ -294,7 +243,7 @@ React.useEffect(() => {
         { id: "L011", targetId: "E004", type: "water", value: 400 },
       ],
     },
-  ]);*/
+  ]);
 
   const [linkMode, setLinkMode] = useState(null); // 'water' | 'electricity' | 'internet' | null
   const [selectedCardsForLink, setSelectedCardsForLink] = useState([]); // [id1, id2]
