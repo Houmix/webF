@@ -33,17 +33,24 @@ class HouseDetailsAPIView(APIView):
 
         except Profile.DoesNotExist:
             return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
-    def put(self,request,user_id,house_id):
-        try :
-            # Récupérer le profil de l'utilisateur
+    def put(self, request, user_id, house_id):
+        try:
+            # Vérifie que le profil existe
             profile = Profile.objects.get(user_id=user_id, house__id=house_id)
-            house = profile.house  # Maison associée au profil
+            house = profile.house
+
             serializer = HouseSerializer(house, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data,status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Profile.DoesNotExist:
+            return Response({"detail": "Profil non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+
         except Exception as e:
             return Response({"detail": f"Erreur lors de la mise à jour: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
         
 class PeopleInHouseAPIView(APIView):
     permission_classes = [AllowAny]

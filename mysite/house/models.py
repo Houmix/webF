@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 # Create your models here.
 class City(models.Model):
     name = models.CharField(max_length=255)
@@ -74,3 +75,10 @@ class EntityHistory(models.Model):
 
     def __str__(self):
         return f"{self.entity.name} - {'ON' if self.on else 'OFF'} - {self.timestamp}"
+    
+class News(models.Model):
+    house = models.ForeignKey(House, on_delete=models.CASCADE, related_name="news")
+    title = models.CharField(max_length=128)
+    date = models.DateField(default=timezone.now)
+    photo = models.ImageField(upload_to="news/")
+    content = models.CharField(max_length=256)
