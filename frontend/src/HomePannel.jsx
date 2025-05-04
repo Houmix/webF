@@ -201,11 +201,12 @@ function HomePannel() {
   const [participantsPopup, setParticipantsPopup] = useState({
     visible: false,
     data: null,
+    editMode: false,
   });
 
   // Callback pour afficher la popup participants depuis ProjectCard
-  const handleShowParticipantsPopup = (data) => {
-    setParticipantsPopup({ visible: true, data });
+  const handleShowParticipantsPopup = (data, editMode = false) => {
+    setParticipantsPopup({ visible: true, data, editMode });
   };
 
   return (
@@ -230,6 +231,7 @@ function HomePannel() {
               <ParticipantsPopup
                 visible={participantsPopup.visible}
                 data={participantsPopup.data}
+                editMode={participantsPopup.editMode}
                 onClose={() =>
                   setParticipantsPopup((p) => ({ ...p, visible: false }))
                 }
