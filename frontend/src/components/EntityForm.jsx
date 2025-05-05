@@ -82,7 +82,10 @@ function EntityForm({ houseId, entityId, onCreated, onCancel, isPut = false }) {
   return (
     <div className="form-group-fullwidth">
       <form onSubmit={handleFormSubmit}>
-        <div className="form-group type-group">
+        <div
+          className="form-group type-group"
+          style={{ marginBottom: isPut ? 32 : 16 }}
+        >
           <label>
             Nom du projet :<br />
             <input
@@ -95,7 +98,10 @@ function EntityForm({ houseId, entityId, onCreated, onCancel, isPut = false }) {
             />
           </label>
         </div>
-        <div className="form-group type-group">
+        <div
+          className="form-group type-group"
+          style={{ marginBottom: isPut ? 32 : 16 }}
+        >
           <label>
             Type :<br />
             <input
@@ -108,10 +114,8 @@ function EntityForm({ houseId, entityId, onCreated, onCancel, isPut = false }) {
             />
           </label>
         </div>
-        
-        
         {/* Ajout de l'input image */}
-        <div className="form-group">
+        <div className="form-group" style={{ marginBottom: isPut ? 32 : 16 }}>
           <label>
             Image :<br />
             <input

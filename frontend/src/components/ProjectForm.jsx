@@ -105,7 +105,7 @@ function ProjectForm({ onCancel }) {
         boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
       }}
     >
-      <h2 style={{ margin: 0, textAlign: "center", fontWeight: 700 }}>
+      <h2 style={{ margin: 0, textAlign: "center", fontWeight: 700, color: "#1e293b" }}>
         Créer un projet
       </h2>
       <input
@@ -113,31 +113,31 @@ function ProjectForm({ onCancel }) {
         onChange={(e) => setName(e.target.value)}
         placeholder="Nom du projet"
         required
-        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
+        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8, color: "#1e293b", background: "#f8fafc", fontWeight: 500 }}
       />
       <input
         value={type}
         onChange={(e) => setType(e.target.value)}
         placeholder="Type de projet"
         required
-        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
+        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8, color: "#334155", background: "#f8fafc", fontWeight: 500 }}
       />
       <input
         value={imageUrl}
         onChange={(e) => setImageUrl(e.target.value)}
         placeholder="URL de l'image (optionnel)"
-        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
+        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8, color: "#64748b", background: "#f8fafc", fontWeight: 500 }}
       />
       
       <input
         type="file"
         accept="image/*"
         onChange={handleImageChange}
-        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8 }}
+        style={{ borderRadius: 8, border: "1px solid #b3d4fc", padding: 8, color: "#64748b", background: "#f8fafc", fontWeight: 500 }}
       />
       {imageUrl && (
         <div style={{ textAlign: "center" }}>
-          <p>Aperçu de l'image:</p>
+          <p style={{ color: "#475569" }}>Aperçu de l'image:</p>
           <img 
             src={imageUrl} 
             alt="Aperçu" 

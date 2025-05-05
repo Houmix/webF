@@ -211,7 +211,31 @@ function HomePannel() {
 
   return (
     <>
-      <div className="user-header">Gestion des Projets</div>
+      <div className="user-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', gap: 12, minHeight: 48 }}>
+        <span style={{ flex: 0, fontWeight: 600, fontSize: 22, color: 'black' }}>Gestion des Projets</span>
+        <button
+          onClick={() => window.location.href = '/'}
+          style={{
+            position: 'absolute',
+            right: 24,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'linear-gradient(90deg,#3da9fc,#90e0ef)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '6px 18px',
+            fontWeight: 600,
+            fontSize: 15,
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px #3da9fc33',
+            transition: 'background 0.2s',
+            color: 'black',
+          }}
+        >
+          Revenir à l'accueil
+        </button>
+      </div>
       <div className="user-home-main">
         <aside className="user-sidebar">
           <ProjectForm onSubmit={handleAddProject} onCancel={() => {}} />
