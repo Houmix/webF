@@ -485,7 +485,10 @@ React.useEffect(() => {
       <div className="user-banner">
         <button
           className="user-btn user-btn-main user-banner-btn"
-          onClick={() => (window.location.href = "/")}
+          onClick={() => {
+            const username = params.get("username") || 'admin';
+            window.location.href = `/?username=${username}`;
+          }}
           title="Retour à l'accueil"
         >
           <span role="img" aria-label="Accueil">
@@ -494,7 +497,7 @@ React.useEffect(() => {
           User
         </button>
         <div className="user-banner-user">
-          👤 Bienvenue, <b>{userName}</b>
+          👤 Bienvenue, <b>{params.get("username")}</b>
         </div>
       </div>
       {/* Popup de création de lien entre cartes */}

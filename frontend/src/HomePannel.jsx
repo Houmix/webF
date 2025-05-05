@@ -28,7 +28,9 @@ function HomePannel() {
 
   const handleDoubleClick = (projectId) => {
     console.log("Double-clic sur le projet:", projectId);
-    navigate("/app/?id="+projectId);
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username") || "admin";
+    navigate(`/app/?id=${projectId}&username=${username}`);
   };
 
   const [positionedProjects, setPositionedProjects] = useState([]);
