@@ -449,6 +449,7 @@ React.useEffect(() => {
       sourceId: data.sourceId,
       links: data.links,
       buildings: buildings, // Pour afficher les noms des bâtiments cibles
+      readOnly: data.readOnly, // Ajouté pour propager le mode édition
     });
     setPopupVisible(true);
   };
@@ -793,6 +794,7 @@ React.useEffect(() => {
                 onValidate={handleValidate}
                 stageWidth={stageSize.width}
                 stageHeight={stageSize.height}
+                readOnly={popupData?.readOnly}
               />
             </div>
           ) : (

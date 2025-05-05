@@ -233,31 +233,22 @@ function BuildingCard({
   };
 
   const handleToggleActive = async (e) => {
-  // Stop propagation to avoid event bubbling
-  e.cancelBubble = true;
-  e.evt.stopPropagation();
+    e.cancelBubble = true;
+    e.evt.stopPropagation();
 
-  const updatedActive = !data.active;
-  const updatedFields = {
-    ...data,
-    active: updatedActive,
-  };
+    const updatedActive = !data.active;
+    setData(prev => ({ ...prev, active: updatedActive }));
 
-  // Optimistic update
-  setData(prev => ({ ...prev, active: updatedActive }));
-
-  try {
-    await handleUpdateEntity(data.id, { active: updatedActive });
-    // Optionally notify parent
-    if (onToggleActive) {
-      onToggleActive({ ...data, active: updatedActive });
+    try {
+      await api.put(`house/entity/${data.id}/`, { active: updatedActive, user_id: sessionStorage.getItem('userId') });
+      if (onToggleActive) {
+        onToggleActive({ ...data, active: updatedActive });
+      }
+    } catch (error) {
+      setData(prev => ({ ...prev, active: !updatedActive }));
+      console.error('Failed to update entity status', error);
     }
-  } catch (error) {
-    // Revenir à l'état précédent en cas d'erreur
-    setData(prev => ({ ...prev, active: !updatedActive }));
-    console.error('Failed to update entity status', error);
-  }
-};
+  };
 
   return (
     <Group
@@ -574,8 +565,24 @@ function BuildingCard({
             height={22}
             fontSize={16}
             fill="#3da9fc"
-            onClick={handleEdit}
-            onTap={handleEdit}
+            onClick={() => {
+              if (onShowLinksList) {
+                onShowLinksList({
+                  sourceId: data.id,
+                  links: data.links || [],
+                  readOnly: false,
+                });
+              }
+            }}
+            onTap={() => {
+              if (onShowLinksList) {
+                onShowLinksList({
+                  sourceId: data.id,
+                  links: data.links || [],
+                  readOnly: true,
+                });
+              }
+            }}
             align="center"
             verticalAlign="middle"
             style={{ cursor: "pointer" }}

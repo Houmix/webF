@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useData } from "../DataContext";
 
 // Extract the form logic to a standalone component
-function EntityForm({ houseId, onCreated, onCancel }) {
+function EntityForm({ houseId, entityId, onCreated, onCancel, isPut = false }) {
   const { api } = useData();
   const [formData, setFormData] = useState({
     name: "",
@@ -40,29 +40,31 @@ function EntityForm({ houseId, onCreated, onCancel }) {
     try {
       // Log the request data for debugging
       console.log("Envoi des données:", formDataToSend);
-      console.log("URL de l'API:", `/house/entity/${houseId}/`);
-      const response = await api.post(`/house/entity/${houseId}/`, formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      // Log response for debugging
-      console.log("Réponse API:", response);
-      
-      setFormSuccess("Projet créé avec succès !");
-      // Callback pour informer le parent (rafraîchir la liste)
+      let response;
+      if (isPut) {
+        // PUT pour modification
+        response = await api.put(`/house/entity/${entityId}/`, formDataToSend, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        // POST pour création
+        response = await api.post(`/house/entity/${houseId}/`, formDataToSend, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+      if (response && response.status === 200) {
+        window.location.reload();
+      }
+      setFormSuccess(isPut ? "Entité modifiée avec succès !" : "Entité créée avec succès !");
       if (onCreated) onCreated();
-      // Force un rechargement de la page pour afficher la nouvelle entité
-      window.location.reload();
-      // Reset du formulaire
       setFormData({
         name: "",
         type: "",
+        photo: null,
         coordX: 100,
         coordY: 100,
-        photo: null,
       });
+      if (onCancel) onCancel();
     } catch (err) {
       console.error("Erreur API complète:", err);
       // Meilleure gestion de l'erreur
@@ -134,7 +136,7 @@ function EntityForm({ houseId, onCreated, onCancel }) {
             disabled={formLoading}
             className="user-btn user-btn-success"
           >
-            {formLoading ? " Création..." : " Créer"}
+            {formLoading ? " Envoi..." : isPut ? "Modifier" : "Créer"}
           </button>
           <button
             type="button"

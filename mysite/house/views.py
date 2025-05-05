@@ -156,6 +156,7 @@ class EntityAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, id):
+        print(request)
         entity = get_object_or_404(Entity, id=id)  # Un seul objet, pas queryset
         previous_state = entity.active  # État avant modificatiactive
         new_state = request.data.get("active")
