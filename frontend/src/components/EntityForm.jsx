@@ -25,23 +25,27 @@ function EntityForm({ houseId, onCreated, onCancel }) {
     setFormError("");
     setFormSuccess("");
 
-    // Structure à envoyer à l'API (adapter selon backend)
-    const entityData = {
-      name: formData.name,
-      type: formData.type,
-      active: true,
-      x: Number(formData.coordX), // Correction: doit être 'x'
-      y: Number(formData.coordY) , // Correction: doit être 'y'
-      user_id: sessionStorage.getItem('userId')
-    };
-
+    // Construction du FormData pour envoyer l'image et les champs texte
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('type', formData.type);
+    formDataToSend.append('active', true);
+    formDataToSend.append('x', Number(formData.coordX));
+    formDataToSend.append('y', Number(formData.coordY));
+    formDataToSend.append('user_id', sessionStorage.getItem('userId'));
+    if (formData.photo) {
+      formDataToSend.append('photo', formData.photo); // clé backend
+    }
+    // Envoie la requête POST à l'API REST avec multipart/form-data
     try {
       // Log the request data for debugging
-      console.log("Envoi des données:", entityData);
+      console.log("Envoi des données:", formDataToSend);
       console.log("URL de l'API:", `/house/entity/${houseId}/`);
-      
-      // Envoie la requête POST à l'API REST
-      const response = await api.post(`/house/entity/${houseId}/`, entityData);
+      const response = await api.post(`/house/entity/${houseId}/`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       
       // Log response for debugging
       console.log("Réponse API:", response);
@@ -102,25 +106,16 @@ function EntityForm({ houseId, onCreated, onCancel }) {
         </div>
         
         
-        <div style={{ marginBottom: 12, display: "flex", gap: 10 }}>
+        {/* Ajout de l'input image */}
+        <div className="form-group">
           <label>
-            Coord X :<br />
+            Image :<br />
             <input
-              type="number"
-              name="coordX" // Changed from "coordsX" to "coordX"
-              value={formData.coordX}
-              onChange={handleFormChange}
-              className="form-input-small"
-            />
-          </label>
-          <label>
-            Coord Y :<br />
-            <input
-              type="number"
-              name="coordY" // Changed from "coordsY" to "coordY"
-              value={formData.coordY}
-              onChange={handleFormChange}
-              className="form-input-small"
+              type="file"
+              name="photo"
+              accept="image/*"
+              onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
+              className="form-input"
             />
           </label>
         </div>
@@ -137,7 +132,7 @@ function EntityForm({ houseId, onCreated, onCancel }) {
             disabled={formLoading}
             className="user-btn user-btn-success"
           >
-            {formLoading ? "⏳ Création..." : "✅ Créer"}
+            {formLoading ? " Création..." : " Créer"}
           </button>
           <button
             type="button"

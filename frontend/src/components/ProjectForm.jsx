@@ -62,29 +62,30 @@ function ProjectForm({ onCancel }) {
 
   const createHouse = async (userId, houseData) => {
     try {
-      console.log(houseData);
+      // Préparer FormData pour l'envoi de fichiers (image)
+      const formData = new FormData();
+      formData.append('name', houseData.get('name') || "");
+      formData.append('type', houseData.get('type') || "");
+      formData.append('address', houseData.get('address') || "");
+      formData.append('coordX', houseData.get('coordX') || 0);
+      formData.append('coordY', houseData.get('coordY') || 0);
+      if (houseData.get('image')) {
+        formData.append('photo', houseData.get('image')); // 'photo' doit correspondre au champ du modèle backend
+      }
       // Construire l'URL de l'API avec l'ID utilisateur
-      const data2send = {
-        name: houseData.name||"",
-        type: houseData.type||"",
-        address: houseData.address||"",
-        photo: houseData.photo||"",
-        profiles: [],
-        entities: [],
-      };
       const apiUrl = `http://127.0.0.1:8000/house/house/${userId}/`;
-      
-      // Envoyer la requête POST
-      const response = await api.post(apiUrl, houseData);
-      
+      // Envoyer la requête POST avec FormData (multipart/form-data)
+      const response = await api.post(apiUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       // Vérifier si la requête a réussi
-      if (!response.ok) {
+      if (response.status !== 200 && response.status !== 201) {
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
-      
-      // Parser et retourner les données
-      const result = await response.json();
-      return result;
+      // Retourner la réponse
+      return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de la maison:', error);
       throw error;
@@ -93,7 +94,7 @@ function ProjectForm({ onCancel }) {
   return (
     <form
       className="user-project-form"
-      onSubmit={handleSubmit}
+     onSubmit={handleSubmit}
       style={{
         display: "flex",
         flexDirection: "column",

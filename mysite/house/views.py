@@ -78,18 +78,24 @@ class PeopleInHouseAPIView(APIView):
 class HousesAPIView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, user_id):
+        print("thhtth")
         data = request.data.copy()
         user = get_object_or_404(User, id=user_id)
         serializer = HouseSerializer(data=data, partial=True)
+        
         if serializer.is_valid():
+            print("thhtth")
             # Création de la maison
             house = serializer.save()
+            print("thhtth")
             # Création du profil pour lier l'utilisateur à la maison
             Profile.objects.create(
                 user=user,
                 house=house,
                 role='admin',  # ou 'propriétaire' selon ta logique
-                has_paid=True  # ou False si par défaut il n'a pas payé
+                has_paid=True,  # ou False si par défaut il n'a pas payé
+                access=True,
+                isOwner=True
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -98,7 +104,7 @@ class HousesAPIView(APIView):
         user = get_object_or_404(User, id=user_id)
 
         # Récupérer toutes les maisons liées à cet utilisateur via Profile
-        profiles = Profile.objects.filter(user=user).select_related('house')
+        profiles = Profile.objects.filter(user=user,access=True).select_related('house')
         houses = [profile.house for profile in profiles]
 
         # Sérialisation des maisons

@@ -1,32 +1,18 @@
 from django.db import models
 from django.utils import timezone
 # Create your models here.
-class City(models.Model):
-    name = models.CharField(max_length=255)
-    coordX = models.FloatField()
-    coordY = models.FloatField()
-    def __str__(self):
-        return self.name
 
     
 class House(models.Model):
     type = models.CharField(
-        max_length=20,
-        choices=[
-            ('Maison','Maison'),
-            ('Entreprise', 'Entreprise'),
-            ('Ecole', 'Ecole'),
-            ('Mairie', 'Mairie'),
-            ('Gare','Gare')
-        ],
-        default='Maison'
+        max_length=128
     )
     name = models.CharField(max_length=128)
-    photo = models.ImageField(upload_to="house/")
-    address = models.CharField(max_length=255)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="houses")
-    coordX = models.FloatField()
-    coordY = models.FloatField()
+    photo = models.ImageField(upload_to="house/",blank=True,null=True)
+    address = models.CharField(max_length=255,blank=True,null=True)
+    
+    coordX = models.FloatField(default=0)
+    coordY = models.FloatField(default=0)
     def __str__(self):
         return self.name
     

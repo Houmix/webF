@@ -1,13 +1,10 @@
 # serializers.py
 from rest_framework import serializers
-from .models import House, Entity, City
+from .models import House, Entity
 from log.models import  Link, FluxStat
 from user.models import Profile
 
-class CitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = City
-        fields = ['name', 'coordX', 'coordY']
+
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -53,6 +50,6 @@ class HouseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = House
-        fields = ['id', 'name', 'photo', 'type', 'address', 'city', 'coordX', 'coordY', 'entities', 'profiles']
+        fields = ['id', 'name', 'photo', 'type', 'address', 'coordX', 'coordY', 'entities', 'profiles']
 
 
