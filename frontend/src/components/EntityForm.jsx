@@ -53,13 +53,15 @@ function EntityForm({ houseId, onCreated, onCancel }) {
       setFormSuccess("Projet créé avec succès !");
       // Callback pour informer le parent (rafraîchir la liste)
       if (onCreated) onCreated();
-      
+      // Force un rechargement de la page pour afficher la nouvelle entité
+      window.location.reload();
       // Reset du formulaire
       setFormData({
         name: "",
         type: "",
         coordX: 100,
         coordY: 100,
+        photo: null,
       });
     } catch (err) {
       console.error("Erreur API complète:", err);
