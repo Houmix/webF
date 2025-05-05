@@ -232,7 +232,7 @@ function HomePannel() {
             cursor: 'pointer',
             boxShadow: '0 1px 4px #3da9fc33',
             transition: 'background 0.2s',
-            color: 'black',
+
           }}
         >
           Revenir à l'accueil

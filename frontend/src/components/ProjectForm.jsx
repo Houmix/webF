@@ -85,6 +85,7 @@ function ProjectForm({ onCancel }) {
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
       // Retourner la réponse
+      window.location.reload();
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la création de la maison:', error);
