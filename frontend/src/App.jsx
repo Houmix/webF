@@ -25,9 +25,24 @@ function App() {
   const { api } = useData();
   // State pour forcer le rerender de DrawLine
   const [dummy, setDummy] = useState(0);
+  const [buildings, setBuildings] = React.useState([]);
 
   // Fonction pour forcer le rerender de DrawLine
   const forceDrawLineRerender = () => setDummy((d) => d + 1);
+
+  // S'assure que DrawLine se rafraîchit après chaque mise à jour des bâtiments
+  useEffect(() => {
+    forceDrawLineRerender();
+  }, [buildings]);
+
+  // Expose le trigger global pour les composants enfants (ex: PopupLinksList)
+  useEffect(() => {
+    window.forceDrawLineRerender = forceDrawLineRerender;
+    return () => {
+      delete window.forceDrawLineRerender;
+    };
+  }, []);
+
   // Onglet de recherche
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,7 +52,6 @@ function App() {
   const [panStart, setPanStart] = useState(null);
   const [touchStartPos, setTouchStartPos] = useState(null);
 
-  const [buildings, setBuildings] = React.useState([]);
 const params = new URLSearchParams(window.location.search);
 const houseId = params.get("id");
 const userId = sessionStorage.getItem("userId");
@@ -441,7 +455,7 @@ React.useEffect(() => {
 
   const handleValidate = (quantity) => {
     const newLink = {
-      id: `L${String(Date.now()).slice(-4)}`,
+      id: Date.now(),
       targetId: popupData.targetId,
       type: popupData.linkMode,
       value: quantity,

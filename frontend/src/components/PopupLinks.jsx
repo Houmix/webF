@@ -54,6 +54,7 @@ export default function PopupLinks({
       await api.post("/house/link/", linkData);
       onValidate(q);
       setQuantity("");
+
     } catch (error) {
       alert("Erreur lors de la création du lien");
     }

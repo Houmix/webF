@@ -8,7 +8,7 @@ export default function PopupLinksList({ visible, data, onClose, stageWidth, sta
   const refreshLinks = async () => {
     if (data?.sourceId) {
       try {
-        const res = await api.get(`/house/link/?entity_id=${data.sourceId}`);
+        const res = await api.get(`/house/link/?entity_id=${data.sourceId}/`);
         setLinks(res.data || []);
       } catch {
         setLinks([]);
@@ -23,13 +23,11 @@ export default function PopupLinksList({ visible, data, onClose, stageWidth, sta
 
   const deleteLink = async (linkId) => {
     try {
-      const response = await api.delete('/house/link/', {
-        data: { id: linkId },
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await api.delete(`/house/deleteLink/${linkId}/`);
       if (response.status === 204) {
         alert('Lien supprimé !');
-        refreshLinks();
+        window.forceDrawLineRerender();
+        window.fetchAndConvertBuilding();
       } else {
         alert(response.data?.error || 'Erreur lors de la suppression');
       }

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HouseDetailsAPIView, PeopleInHouseAPIView, HousesAPIView, EntityAPIView,LinkAPIView, ProfileAPIView,DeleteHouseAPIView
+from .views import HouseDetailsAPIView, PeopleInHouseAPIView, HousesAPIView, EntityAPIView,LinkAPIView, ProfileAPIView,DeleteLinkAPIView,DeleteHouseAPIView,DeleteEntityAPIView
 
 urlpatterns = [
     path('house/<int:user_id>/', HousesAPIView.as_view(), name='house-get_create'), #Toutes les maisons d'un utilisateurs  Donne maison, entité et les liens detoutes les maisons d'un utilisateur
@@ -12,5 +12,7 @@ urlpatterns = [
     path('entity/<int:id>/', EntityAPIView.as_view(), name='entity-create'),#créer une entité
     #path('entity/<int:entity_id>/', EntityAPIView.as_view(), name='entity-put'),#mettre a jour les infos d'une entité
     path('link/', LinkAPIView.as_view(), name='link-create'),#créer un lien entre 2 entité
-    path('profile/<int:user_id>/<int:house_id>/',ProfileAPIView.as_view(),name='profile-put')#supprimer ou accepter l'acces d'un utilisateur à une maison .delete put
+    path('profile/<int:user_id>/<int:house_id>/',ProfileAPIView.as_view(),name='profile-put'),#supprimer ou accepter l'acces d'un utilisateur à une maison .delete put
+    path('entity/<int:entity_id>/<int:user_id>', DeleteEntityAPIView.as_view(), name='entity-delete'),#supp une entité
+    path('deleteLink/<int:link_id>/', DeleteLinkAPIView.as_view(), name='delete-link')#supprimer un lien
 ]

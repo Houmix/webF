@@ -212,12 +212,20 @@ function BuildingCard({
     alert("Modifier bâtiment (à implémenter)");
   };
 
-  // Action Supprimer (placeholder)
-  const handleDelete = () => {
+  // Action Supprimer (API call)
+  const handleDelete = async () => {
     setMenu({ ...menu, visible: false });
     setShowConfirm(false);
-    // TODO : déclencher la suppression réelle ici
-    alert("Suppression bâtiment (à implémenter)");
+    try {
+      await api.delete(`house/entity/${data.id}/${sessionStorage.getItem('userId')}`);
+      // Optionally, notify parent or refresh list, e.g. window.location.reload() or callback
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('buildingDeleted', { detail: { id: data.id } }));
+      }
+    } catch (error) {
+      alert("Erreur lors de la suppression du bâtiment : " + (error?.message || error));
+      console.error(error);
+    }
   };
 
   const handleToggleActive = async (e) => {
@@ -697,4 +705,3 @@ function BuildingCard({
 }
 
 export default BuildingCard;
-
