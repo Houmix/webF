@@ -38,7 +38,6 @@ export default function PopupLinks({
     if (!q || isNaN(q) || q <= 0) return;
     if (!data?.sourceId || !data?.targetId || !data?.linkMode) return;
 
-
     // Construire l'objet à envoyer
     // Extraire l'id numérique attendu par l'API
     const sourceId = parseInt(data.sourceId, 10);
@@ -52,9 +51,9 @@ export default function PopupLinks({
 
     try {
       await api.post("/house/link/", linkData);
-      onValidate(q);
+      window.location.reload(); // Force un rechargement de la page après ajout
+      // onValidate(q);
       setQuantity("");
-
     } catch (error) {
       alert("Erreur lors de la création du lien");
     }

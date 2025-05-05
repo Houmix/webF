@@ -16,6 +16,7 @@ import { useData } from "../DataContext";
 
 function BuildingCard({
   initialData,
+  position: initialPosition,
   onPositionChange,
   otherCards = [],
   isHighlighted = false,
@@ -38,47 +39,38 @@ function BuildingCard({
   // State pour les coordonnées et les données du bâtiment
   const [data, setData] = useState(initialData);
 
-  // Function to update an entity (PUT)
-  const handleUpdateEntity = async (entityId, updatedFields) => {
-    const entityData = {
-      active: Boolean(updatedFields.active),
-      user_id: 2
-    };
-
-
-    try {
-      const response = await api.put(`house/entity/${entityId}/`, entityData);
-      // Optionally update local state if needed
-      setData(prev => ({ ...prev, ...updatedFields }));
-      return response;
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'entité:", error);
-      throw error;
-    }
-  };
-
-
-  // Sécurité pour éviter erreur si fluxStats absent
-  const safeFluxStats = data.fluxStats || {
-    electricity: { value: 0 },
-    water: { value: 0 },
-    internet: { value: 0 },
-  };
-
-  const [position, setPosition] = useState({
-    x: initialData.coords.x || 0,
-    y: initialData.coords.y || 0,
+  // Utilise la position reçue en prop si présente, sinon fallback sur initialData
+  const [position, setPosition] = useState(initialPosition || {
+    x: initialData.coords?.x ?? initialData.x ?? 0,
+    y: initialData.coords?.y ?? initialData.y ?? 0,
   });
+
+  // Sync position state if prop changes (from parent)
+  useEffect(() => {
+    setData(initialData);
+    if (initialPosition) {
+      setPosition(initialPosition);
+    } else {
+      setPosition({
+        x: initialData.coords?.x ?? initialData.x ?? 0,
+        y: initialData.coords?.y ?? initialData.y ?? 0,
+      });
+    }
+  }, [initialData, initialPosition]);
+
   const [isDragging, setIsDragging] = useState(false);
 
   // Mise à jour des données lorsque les props changent
   useEffect(() => {
     setData(initialData);
-    setPosition({
-      x: initialData.coords.x || 0,
-      y: initialData.coords.y || 0,
-    });
-  }, [initialData]);
+    // Mise à jour de la position si les coordonnées dans initialData ont changé
+    if (!initialPosition) {
+      setPosition({
+        x: initialData.coords?.x ?? initialData.x ?? 0,
+        y: initialData.coords?.y ?? initialData.y ?? 0,
+      });
+    }
+  }, [initialData, initialPosition]);
 
   // Fonction pour gérer le début du déplacement
   const handleDragStart = (e) => {
@@ -88,7 +80,7 @@ function BuildingCard({
   };
 
   // Fonction pour gérer le déplacement
-  const handleDragMove = (e) => {
+  const handleDragMove = async (e) => {
     // Arrêter la propagation pour éviter que le stage ne soit déplacé en même temps
     e.evt.stopPropagation();
 
@@ -98,6 +90,18 @@ function BuildingCard({
     };
 
     setPosition(newPosition);
+
+    // Requête PUT pour mettre à jour les coordonnées sur le backend
+    try {
+      await api.put(`house/entity/${data.id}/`, {
+        ...data,
+        x: newPosition.x,
+        y: newPosition.y,
+        user_id: sessionStorage.getItem('userId')
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour des coordonnées:", error);
+    }
 
     // Mise à jour en temps réel pour les lignes
     const updatedData = {

@@ -113,8 +113,8 @@ React.useEffect(() => {
               id: entity.id,
               image:"http://localhost:8000/"+entity.photo || "",
               coords: {
-                x: entity.coordX || 0,
-                y: entity.coordY || 0
+                x: entity.x || 0,
+                y: entity.y || 0
               },
               infos: {
                 type: entity.type || "",
@@ -849,6 +849,7 @@ React.useEffect(() => {
                         <BuildingCard
                           key={building.id + "-building-" + idx}
                           initialData={building}
+                          position={building.coords ? { x: building.coords.x, y: building.coords.y } : { x: 0, y: 0 }}
                           onPositionChange={(updatedBuilding) => {
                             handlePositionChange(updatedBuilding);
                             setDummy((d) => d + 1);

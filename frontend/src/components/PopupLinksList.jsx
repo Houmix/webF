@@ -25,9 +25,8 @@ export default function PopupLinksList({ visible, data, onClose, stageWidth, sta
     try {
       const response = await api.delete(`/house/deleteLink/${linkId}/`);
       if (response.status === 204) {
-        alert('Lien supprimé !');
-        window.forceDrawLineRerender();
-        window.fetchAndConvertBuilding();
+        
+        window.location.reload(); // Force un rechargement de la page
       } else {
         alert(response.data?.error || 'Erreur lors de la suppression');
       }
